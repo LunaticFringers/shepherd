@@ -3,15 +3,15 @@
 ![Lint](https://github.com/LunaticFringers/shepherd/actions/workflows/lint.yaml/badge.svg)
 [![codecov](https://codecov.io/gh/LunaticFringers/shepherd/branch/main/graph/badge.svg)](https://codecov.io/gh/LunaticFringers/shepherd)
 
-Shepherd implements an orchestrator tool useful for provision development
-platforms using **Docker**.
+Shepherd implements an orchestrator tool useful for provisioning development
+platforms.
 
 > **Note:** Should a bug be found and not expected to be related with
 > [known issues][issues], one should feel encouraged to file a new issue.
 
 ## Key Concepts
 
-**Shepherd** utilizes two types of images:
+Shepherd utilizes two types of images:
 
 1. **Docker Images**
 2. **Environment Images**
@@ -44,81 +44,25 @@ the corresponding environment state will evolve privately.
 
 ### OS & System Services
 
-- **Linux platforms**
-  - Ubuntu 22.04 LTS
-  - Ubuntu 24.04 LTS
+- **Linux**
+  - Debian derived
 
-- **Windows platforms**
-  - Windows 10/11
-    - [WSL](https://learn.microsoft.com/en-us/windows/wsl/install)
-    - [Ubuntu 22.04 LTS][ubuntu-22-04-wsl]
-    - [Ubuntu 24.04 LTS][ubuntu-24-04-wsl]
-    - [Docker](https://docs.docker.com/desktop/install/windows-install)
+- **Windows**
+  - Windows 10+
 
 ## Installation
 
-> **Note:** It is highly recommended to use the tool having
-> `NOPASSWD` option set for `sudo`.
+### Linux
 
-To set the `NOPASSWD` option, execute:
-
-```shell
-sudo visudo
-```
-
-Add the following line replacing `$USER` with the actual username.
+Use the `VER` env variable to specify the desired tool's version.
 
 ```text
-$USER ALL=(ALL) NOPASSWD:ALL
+sudo VER=0.0.0 sh -c "$(curl -sfL https://raw.githubusercontent.com/LunaticFringers/shepherd/main/scripts/install.sh)"
 ```
 
-> **Note:** If you do not have the `NOPASSWD` option set for `sudo`, you must
-  prepend commands with `sudo` to run them with the necessary permissions.
+### Windows
 
-Install the latest tool's version with the following command.
-
-```text
-sh -c "$(curl -sfL ftp://to-change/shp/shpdctli.sh)"
-```
-
-Use `VER` env variable to install the desired tool's version.
-
-```text
-VER=0.0.0 sh -c "$(curl -sfL ftp://to-change/shp/shpdctli.sh)"
-```
-
-## Quick Start
-
-Once installed, query the environment registry for available images:
-
-```text
-$ shpdctl reg list
-
-Environment        Size
------------        ----
-Env-Tag-1          7.22    (G)
-Env-Tag-2          671.25  (M)
-Env-Tag-3          53.78   (M)
-...
-```
-
-Pull an environment:
-
-```text
-shpdctl --checkout env pull Env-Tag-2
-```
-
-Start it:
-
-```text
-shpdctl env up
-```
-
-Stop it:
-
-```text
-shpdctl env halt
-```
+Not supported yet.
 
 ## Consuming Environment Images
 
@@ -145,13 +89,11 @@ Refer to the specific documentation for currently supported database services:
 1. [Oracle]
 2. Postgres
 
-## Developer Instructions
+## Develop Shepherd
 
-See our [development instructions][development].
+See our [development][development] documentation.
 
 [issues]: https://github.com/LunaticFringers/shepherd/issues
-[ubuntu-22-04-wsl]: https://apps.microsoft.com/detail/9pn20msr04dw?hl=en-us&gl=US
-[ubuntu-24-04-wsl]: https://apps.microsoft.com/detail/9nz3klhxdjp5?hl=en-us&gl=US
 [Consuming Environment Images]: docs/env-consume.md
 [Authoring Environment Images]: docs/env-auth.md
 [shpdctl]: docs/shpdctl.md
