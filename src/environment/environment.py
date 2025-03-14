@@ -38,7 +38,7 @@ class Environment(ABC):
         self.services = []
 
     @abstractmethod
-    def init(self, db_type: str, env_tag: str) -> None:
+    def init(self, db_type: str, env_tag: str):
         """Initialize an environment."""
         pass
 
@@ -48,22 +48,22 @@ class Environment(ABC):
         pass
 
     @abstractmethod
-    def start(self) -> None:
+    def start(self):
         """Start an environment."""
         pass
 
     @abstractmethod
-    def halt(self) -> None:
+    def halt(self):
         """Halt an environment."""
         pass
 
     @abstractmethod
-    def reload(self) -> None:
+    def reload(self):
         """Reload an environment."""
         pass
 
     @abstractmethod
-    def status(self) -> None:
+    def status(self):
         """Get environment status."""
         pass
 
@@ -71,27 +71,27 @@ class Environment(ABC):
         """Return the tag of the environment."""
         return self.tag
 
-    def set_tag(self, tag: str) -> None:
+    def set_tag(self, tag: str):
         """Set the tag of the environment."""
         self.tag = tag
 
     def is_archived(self) -> bool:
         return self.archived
 
-    def set_archived(self, archived: bool) -> None:
+    def set_archived(self, archived: bool):
         self.archived = archived
 
     def is_active(self) -> bool:
         return self.active
 
-    def set_active(self, active: bool) -> None:
+    def set_active(self, active: bool):
         self.active = active
 
-    def add_service(self, service: Service) -> None:
+    def add_service(self, service: Service):
         """Add a service to the environment."""
         self.services.append(service)
 
-    def remove_service(self, service: Service) -> None:
+    def remove_service(self, service: Service):
         """Remove a service from the environment."""
         self.services.remove(service)
 
@@ -101,38 +101,38 @@ class Environment(ABC):
 
 
 class EnvironmentMng:
-    def init_environment(self, db_type: str, env_tag: str) -> None:
+    def init_environment(self, db_type: str, env_tag: str):
         """Stub for initializing an environment."""
         pass
 
-    def clone_environment(self, src_env_tag: str, dst_env_tag: str) -> None:
+    def clone_environment(self, src_env_tag: str, dst_env_tag: str):
         """Stub for cloning an environment."""
         pass
 
-    def checkout_environment(self, env_tag: str) -> None:
+    def checkout_environment(self, env_tag: str):
         """Stub for checking out an environment."""
         pass
 
-    def set_all_non_active(self) -> None:
+    def set_all_non_active(self):
         """Stub for setting all environments as non-active."""
         pass
 
-    def list_environments(self) -> None:
+    def list_environments(self):
         """Stub for listing all available environments."""
         pass
 
-    def start_environment(self) -> None:
+    def start_environment(self):
         """Stub for starting an environment."""
         pass
 
-    def halt_environment(self) -> None:
+    def halt_environment(self):
         """Stub for halting an environment."""
         pass
 
-    def reload_environment(self) -> None:
+    def reload_environment(self):
         """Stub for reloading an environment."""
         pass
 
-    def environment_status(self) -> None:
+    def environment_status(self):
         """Stub for getting environment status."""
         pass

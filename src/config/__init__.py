@@ -24,6 +24,7 @@ from .config import (
     CACfg,
     CertCfg,
     Config,
+    ConfigMng,
     DbDefaultCfg,
     DBUpstreamCfg,
     EnvironmentCfg,
@@ -31,7 +32,6 @@ from .config import (
     PostgresCfg,
     ServiceCfg,
     ShpdRegistryCfg,
-    load_config,
 )
 
 __all__ = [
@@ -45,5 +45,5 @@ __all__ = [
     "ServiceCfg",
     "ShpdRegistryCfg",
     "DBUpstreamCfg",
-    "load_config",
+    "ConfigMng",
 ]
