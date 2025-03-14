@@ -25,66 +25,65 @@ from abc import ABC, abstractmethod
 
 class Service(ABC):
     @abstractmethod
-    def build_image(self) -> None:
+    def build_image(self):
         """Build the service image."""
         pass
 
     @abstractmethod
-    def bootstrap(self) -> None:
+    def bootstrap(self):
         """Bootstrap the service."""
         pass
 
     @abstractmethod
-    def start(self) -> None:
+    def start(self):
         """Start the service."""
         pass
 
     @abstractmethod
-    def halt(self) -> None:
+    def halt(self):
         """Stop the service."""
         pass
 
     @abstractmethod
-    def reload(self) -> None:
+    def reload(self):
         """Reload the service."""
         pass
 
     @abstractmethod
-    def show_stdout(self) -> None:
+    def show_stdout(self):
         """Show the service stdout."""
         pass
 
     @abstractmethod
-    def get_shell(self) -> None:
+    def get_shell(self):
         """Get a shell session for the service."""
         pass
 
 
 class ServiceMng:
-    def build_service_image(self, service_type: str) -> None:
-        """Stub for building a service image."""
+    def build_service_image(self, service_type: str):
         pass
 
-    def bootstrap_service(self, service_type: str) -> None:
+    def bootstrap_service(self, service_type: str):
         """Stub for bootstrapping a service."""
         pass
 
-    def start_service(self, service_type: str) -> None:
+    def start_service(self, service_type: str):
         """Stub for starting a service."""
         pass
 
-    def stop_service(self, service_type: str) -> None:
+    def stop_service(self, service_type: str):
         """Stub for stopping a service."""
         pass
 
-    def reload_service(self, service_type: str) -> None:
+    def reload_service(self, service_type: str):
         """Stub for reloading a service."""
         pass
 
-    def show_service_stdout(self, service_id: str) -> None:
+    def show_service_stdout(self, service_id: str):
         """Stub for showing service stdout."""
         pass
 
-    def get_service_shell(self, service_id: str) -> None:
+    def get_service_shell(self, service_id: str):
         """Stub for getting a shell session for a service."""
         pass

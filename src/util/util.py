@@ -23,5 +23,5 @@
 
 class Util:
 
-    def stub(self) -> None:
+    def stub(self):
         pass

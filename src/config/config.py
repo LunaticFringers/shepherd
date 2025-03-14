@@ -22,7 +22,7 @@
 
 import json
 import os
-from dataclasses import dataclass, field
+from dataclasses import asdict, dataclass, field
 from typing import Any, Dict, List, Optional
 
 
@@ -250,98 +250,155 @@ def parse_config(json_str: str) -> Config:
     )
 
 
-def load_user_values(file_path: str) -> Dict[str, str]:
-    """
-    Loads a file holding the user's values in key=value format
-    into a dictionary.
+class ConfigMng:
 
-    Args:
-        file_path (str): Path to the user's values file.
+    original_placeholders: Dict[str, str] = {}
 
-    Returns:
-        Dict[str, str]: A dictionary containing the key-value pairs
-        from the file.
+    def load_user_values(self, file_path: str) -> Dict[str, str]:
+        """
+        Loads a file holding the user's values in key=value format
+        into a dictionary.
 
-    Raises:
-        FileNotFoundError: If the configuration file does not exist.
-        ValueError: If the file is improperly formatted.
-    """
-    user_values: Dict[str, str] = {}
+        Args:
+            file_path (str): Path to the user's values file.
 
-    if not os.path.exists(file_path):
-        raise FileNotFoundError(
-            f"The configuration file '{file_path}' does not exist."
-        )
+        Returns:
+            Dict[str, str]: A dictionary containing the key-value pairs
+            from the file.
 
-    try:
-        with open(file_path, "r") as file:
-            for line in file:
-                line = line.strip()
-                if not line or line.startswith("#"):
-                    continue
+        Raises:
+            FileNotFoundError: If the configuration file does not exist.
+            ValueError: If the file is improperly formatted.
+        """
+        user_values: Dict[str, str] = {}
 
-                if "=" in line:
-                    key, value = line.split("=", 1)
-                    user_values[key.strip()] = value.strip()
-                else:
-                    raise ValueError(
-                        f"Invalid line format in config file: '{line}'"
+        if not os.path.exists(file_path):
+            raise FileNotFoundError(
+                f"The configuration file '{file_path}' does not exist."
+            )
+
+        try:
+            with open(file_path, "r") as file:
+                for line in file:
+                    line = line.strip()
+                    if not line or line.startswith("#"):
+                        continue
+
+                    if "=" in line:
+                        key, value = line.split("=", 1)
+                        user_values[key.strip()] = value.strip()
+                    else:
+                        raise ValueError(
+                            f"Invalid line format in config file: '{line}'"
+                        )
+        except Exception as e:
+            raise ValueError(f"Error reading configuration file: {e}")
+
+        return user_values
+
+    def substitute_placeholders(
+        self, config_data: Dict[Any, Any], values: Dict[str, str]
+    ) -> Dict[Any, Any]:
+        """
+        Recursively replaces placeholders in the given configuration
+        dictionary with values from the provided dictionary.
+
+        Placeholders follow the format "${key}". If a placeholder key is
+        not found in `values`, it is replaced with `None`.
+
+        :param config_data: The configuration dictionary containing
+         placeholders.
+        :param values: A dictionary mapping placeholder keys to their values.
+        :return: A new dictionary with all placeholders replaced.
+        """
+
+        def replace(value: Any, path: str = "") -> Any:
+            if (
+                isinstance(value, str)
+                and value.startswith("${")
+                and value.endswith("}")
+            ):
+                key = value[2:-1]
+                if path:
+                    self.original_placeholders[path] = value
+                return values.get(key, None)
+
+            elif isinstance(value, dict):
+                valDict: Dict[Any, Any] = value
+                return {
+                    k: replace(v, f"{path}.{k}" if path else k)
+                    for k, v in valDict.items()
+                }
+            elif isinstance(value, list):
+                valList: List[Any] = value
+                return [
+                    replace(v, f"{path}[{i}]") for i, v in enumerate(valList)
+                ]
+            return value
+
+        return replace(config_data)
+
+    def load_config(
+        self, file_config_path: str, file_values_path: str
+    ) -> Config:
+        """
+        Loads a JSON configuration file, substitutes placeholders with
+        values from another file, and returns a parsed Config object.
+
+        :param file_config_path: Path to the JSON configuration file
+                                containing placeholders.
+        :param file_values_path: Path to the JSON file with key-value
+                                pairs for substitution.
+        :return: A Config object with resolved values.
+        """
+        with open(file_config_path, "r", encoding="utf-8") as f:
+            config_data = json.load(f)
+
+        values = self.load_user_values(file_values_path)
+        substituted_config = self.substitute_placeholders(config_data, values)
+
+        return parse_config(json.dumps(substituted_config))
+
+    def store_config(self, config: Config, file_output_path: str) -> None:
+        """
+        Stores the given Config object as a JSON file, replacing known keys
+        with placeholders before saving.
+
+        :param config: The Config object to be stored.
+        :param file_output_path: Path to save the JSON configuration file.
+        """
+
+        def replace_keys_with_placeholders(
+            config: Any, parent_key: str = ""
+        ) -> Any:
+            """
+            Recursively traverses the config dictionary, tracking the full
+            key path, and replaces values if the key path exists in
+            original_placeholders.
+            """
+            if isinstance(config, dict):
+                new_dict: Dict[Any, Any] = {}
+                configDict: Dict[Any, Any] = config
+                for k, v in configDict.items():
+                    full_key = (
+                        f"{parent_key}.{k}" if parent_key else k
+                    )  # Construct full key path
+                    new_dict[k] = (
+                        replace_keys_with_placeholders(v, full_key)
+                        if isinstance(v, (dict, list))
+                        else self.original_placeholders.get(full_key, v)
                     )
-    except Exception as e:
-        raise ValueError(f"Error reading configuration file: {e}")
+                return new_dict
+            elif isinstance(config, list):
+                configList: List[Any] = config
+                return [
+                    replace_keys_with_placeholders(item, parent_key)
+                    for item in configList
+                ]
+            else:
+                return config
 
-    return user_values
+        processed_config = replace_keys_with_placeholders(asdict(config))
 
-
-def substitute_placeholders(
-    config_data: Dict[Any, Any], values: Dict[str, str]
-) -> Dict[Any, Any]:
-    """
-    Recursively replaces placeholders in the given configuration
-    dictionary with values from the provided dictionary.
-
-    Placeholders follow the format "${key}". If a placeholder key is
-    not found in `values`, it is replaced with `None`.
-
-    :param config_data: The configuration dictionary containing placeholders.
-    :param values: A dictionary mapping placeholder keys to their values.
-    :return: A new dictionary with all placeholders replaced.
-    """
-
-    def replace(value: Any) -> Any:
-        if (
-            isinstance(value, str)
-            and value.startswith("${")
-            and value.endswith("}")
-        ):
-            key = value[2:-1]
-            return values.get(key, None)
-        elif isinstance(value, dict):
-            valDict: Dict[Any, Any] = value
-            return {k: replace(v) for k, v in valDict.items()}
-        elif isinstance(value, list):
-            valList: List[Any] = value
-            return [replace(v) for v in valList]
-        return value
-
-    return replace(config_data)
-
-
-def load_config(file_config_path: str, file_values_path: str) -> Config:
-    """
-    Loads a JSON configuration file, substitutes placeholders with
-    values from another file, and returns a parsed Config object.
-
-    :param file_config_path: Path to the JSON configuration file
-                             containing placeholders.
-    :param file_values_path: Path to the JSON file with key-value
-                             pairs for substitution.
-    :return: A Config object with resolved values.
-    """
-    with open(file_config_path, "r", encoding="utf-8") as f:
-        config_data = json.load(f)
-
-    values = load_user_values(file_values_path)
-    substituted_config = substitute_placeholders(config_data, values)
-
-    return parse_config(json.dumps(substituted_config))
+        with open(file_output_path, "w", encoding="utf-8") as f:
+            json.dump(processed_config, f, indent=2)

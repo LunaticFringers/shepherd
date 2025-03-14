@@ -80,56 +80,56 @@ def cli(
 
 
 @click.group()
-def db() -> None:
+def db():
     """Database related operations."""
     pass
 
 
 @db.command(name="build")
-def build_dbms() -> None:
+def build_dbms():
     """Build dbms image."""
     databaseMng.build_dbms_image()
 
 
 @db.command(name="bootstrap")
-def bootstrap() -> None:
+def bootstrap():
     """Bootstrap dbms service."""
     databaseMng.bootstrap_dbms_service()
 
 
 @db.command(name="start")
-def up() -> None:
+def up():
     """Start dbms service."""
     databaseMng.start_dbms_service()
 
 
 @db.command(name="halt")
-def halt() -> None:
+def halt():
     """Halt dbms service."""
     databaseMng.halt_dbms_service()
 
 
 @db.command(name="stdout")
-def stdout() -> None:
+def stdout():
     """Show dbms service stdout."""
     databaseMng.show_dbms_stdout()
 
 
 @db.command(name="shell")
-def shell() -> None:
+def shell():
     """Get a shell session for the dbms service."""
     databaseMng.get_dbms_shell_session()
 
 
 @db.command(name="sql")
-def sql_shell() -> None:
+def sql_shell():
     """Get a SQL session for the dbms service."""
     databaseMng.get_sql_shell_session()
 
 
 # Environment commands
 @click.group()
-def env() -> None:
+def env():
     """Environment related operations."""
     pass
 
@@ -137,7 +137,7 @@ def env() -> None:
 @env.command(name="init")
 @click.argument("db_type")
 @click.argument("env_tag")
-def init_environment(db_type: str, env_tag: str) -> None:
+def init_environment(db_type: str, env_tag: str):
     """Init an environment with a dbms type and an environment's tag name."""
     environmentMng.init_environment(db_type, env_tag)
 
@@ -145,105 +145,105 @@ def init_environment(db_type: str, env_tag: str) -> None:
 @env.command(name="clone")
 @click.argument("src_env_tag")
 @click.argument("dst_env_tag")
-def clone_environment(src_env_tag: str, dst_env_tag: str) -> None:
+def clone_environment(src_env_tag: str, dst_env_tag: str):
     """Clone an environment."""
     environmentMng.clone_environment(src_env_tag, dst_env_tag)
 
 
 @env.command(name="checkout")
 @click.argument("env_tag")
-def checkout_environment(env_tag: str) -> None:
+def checkout_environment(env_tag: str):
     """Checkout an environment."""
     environmentMng.checkout_environment(env_tag)
 
 
 @env.command(name="noactive")
-def set_noactive() -> None:
+def set_noactive():
     """Set all environments as non-active."""
     environmentMng.set_all_non_active()
 
 
 @env.command(name="list")
-def list_environments() -> None:
+def list_environments():
     """List all available environments."""
     environmentMng.list_environments()
 
 
 @env.command(name="start")
-def start_environment() -> None:
+def start_environment():
     """Start environment."""
     environmentMng.start_environment()
 
 
 @env.command(name="halt")
-def halt_environment() -> None:
+def halt_environment():
     """Halt environment."""
     environmentMng.halt_environment()
 
 
 @env.command(name="reload")
-def reload_environment() -> None:
+def reload_environment():
     """Reload environment."""
     environmentMng.reload_environment()
 
 
 @env.command(name="status")
-def environment_status() -> None:
+def environment_status():
     """Print environment's status."""
     environmentMng.environment_status()
 
 
 @click.group()
-def svc() -> None:
+def svc():
     """Service related operations."""
     pass
 
 
 @svc.command(name="build")
 @click.argument("service_type", type=str)
-def build_service(service_type: str) -> None:
+def build_service(service_type: str):
     """Build service image."""
     serviceMng.build_service_image(service_type)
 
 
 @svc.command(name="bootstrap")
 @click.argument("service_type", type=str)
-def bootstrap_service(service_type: str) -> None:
+def bootstrap_service(service_type: str):
     """Bootstrap service."""
     serviceMng.bootstrap_service(service_type)
 
 
 @svc.command(name="start")
 @click.argument("service_type", type=str)
-def start_service(service_type: str) -> None:
+def start_service(service_type: str):
     """Start service."""
     serviceMng.start_service(service_type)
 
 
 @svc.command(name="halt")
 @click.argument("service_type", type=str)
-def stop_service(service_type: str) -> None:
+def stop_service(service_type: str):
     """Stop service."""
     serviceMng.stop_service(service_type)
 
 
 @svc.command(name="reload")
 @click.argument("service_type", type=str)
-def reload_service(service_type: str) -> None:
+def reload_service(service_type: str):
     """Reload service."""
     serviceMng.reload_service(service_type)
 
 
 @svc.command(name="stdout")
 @click.argument("service_id", type=str)
-def service_stdout(service_id: str) -> None:
+def service_stdout(service_id: str):
     """Show service stdout."""
     serviceMng.show_service_stdout(service_id)
 
 
 @svc.command(name="shell")
 @click.argument("service_id", type=str)
-def service_shell(service_id: str) -> None:
+def service_shell(service_id: str):
     """Get a shell session for the service."""
     serviceMng.get_service_shell(service_id)
 
