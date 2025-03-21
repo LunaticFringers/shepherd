@@ -20,6 +20,6 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-from .constants import Constants
+from .util import Constants, Util
 
-__all__ = ["Constants"]
+__all__ = ["Constants", "Util"]

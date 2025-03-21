@@ -79,42 +79,42 @@ class DatabaseService(Service):
 
 
 class DatabaseMng:
-    def build_dbms_image(self):
-        """Stub for building DBMS image."""
+    def build_image(self):
+        """Build a DBMS image."""
         pass
 
-    def bootstrap_dbms_service(self):
-        """Stub for bootstrapping DBMS service."""
+    def bootstrap(self):
+        """Bootstrap a DBMS service."""
         pass
 
-    def start_dbms_service(self):
-        """Stub for starting DBMS service."""
+    def start(self):
+        """Start a DBMS service."""
         pass
 
-    def halt_dbms_service(self):
-        """Stub for halting DBMS service."""
+    def halt(self):
+        """Halt a DBMS service."""
         pass
 
-    def show_dbms_stdout(self):
-        """Stub for showing DBMS stdout."""
+    def stdout(self):
+        """Show a DBMS stdout."""
         pass
 
-    def get_dbms_shell_session(self):
-        """Stub for getting a DBMS shell session."""
+    def shell(self):
+        """Get a DBMS shell session."""
         pass
 
-    def get_sql_shell_session(self):
-        """Stub for getting a SQL shell session."""
+    def sql_shell(self):
+        """Get a SQL shell session."""
         pass
 
     def create_database_user(self, user: str, psw: str):
-        """Stub for creating a new database user."""
+        """Create a new database user."""
         pass
 
-    def create_db_directory(self, user: str, directory_name: str):
-        """Stub for creating a directory object in the database."""
+    def create_database_directory(self, user: str, directory_name: str):
+        """Create a directory object in a database."""
         pass
 
     def remove_database_user(self, user: str):
-        """Stub for dropping an existing user."""
+        """Drop an existing user."""
         pass

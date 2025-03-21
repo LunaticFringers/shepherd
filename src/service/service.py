@@ -61,29 +61,29 @@ class Service(ABC):
 
 
 class ServiceMng:
-    def build_service_image(self, service_type: str):
+    def build_image(self, service_type: str):
         pass
 
-    def bootstrap_service(self, service_type: str):
-        """Stub for bootstrapping a service."""
+    def bootstrap(self, service_type: str):
+        """Bootstrap a service."""
         pass
 
-    def start_service(self, service_type: str):
-        """Stub for starting a service."""
+    def start(self, service_type: str):
+        """Start a service."""
         pass
 
-    def stop_service(self, service_type: str):
-        """Stub for stopping a service."""
+    def stop(self, service_type: str):
+        """Stop a service."""
         pass
 
-    def reload_service(self, service_type: str):
-        """Stub for reloading a service."""
+    def reload(self, service_type: str):
+        """Reload a service."""
         pass
 
-    def show_service_stdout(self, service_id: str):
-        """Stub for showing service stdout."""
+    def stdout(self, service_id: str):
+        """Get service stdout."""
         pass
 
-    def get_service_shell(self, service_id: str):
-        """Stub for getting a shell session for a service."""
+    def shell(self, service_id: str):
+        """Get a shell session for a service."""
         pass

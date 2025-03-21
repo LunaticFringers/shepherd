@@ -20,233 +20,237 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+import os
+from typing import Any
+
 import click
 
+from config import ConfigMng
 from database import DatabaseMng
 from environment import EnvironmentMng
 from service import ServiceMng
-
-# Initialize instances
-databaseMng = DatabaseMng()
-environmentMng = EnvironmentMng()
-serviceMng = ServiceMng()
+from util import Util
 
 
-@click.group()
-@click.option("-v", "--verbose", is_flag=True, help="Enable verbose mode.")
-@click.option("-b", "--brief", is_flag=True, help="Brief output.")
-@click.option(
-    "-y",
-    "--yes",
-    is_flag=True,
-    help="Automatic yes to prompts; run non-interactively.",
-)
-@click.option("-a", "--all", is_flag=True, help="Apply to all.")
-@click.option("-f", "--follow", is_flag=True, help="Follow log output.")
-@click.option(
-    "-p", "--porcelain", is_flag=True, help="Produce machine-readable output."
-)
-@click.option("-k", "--keep", is_flag=True, help="Keep instead of drop.")
-@click.option(
-    "-r", "--replace", is_flag=True, help="Replace when already there."
-)
-@click.option(
-    "-c",
-    "--checkout",
-    is_flag=True,
-    help="Contextually checkout the environment.",
-)
-@click.option("-H", "--network-host", is_flag=True, help="Use host's network.")
-@click.option(
-    "-n", "--no-gen-certs", is_flag=True, help="Do not generate certificates."
-)
-def cli(
-    verbose: bool,
-    brief: bool,
-    yes: bool,
-    all: bool,
-    follow: bool,
-    porcelain: bool,
-    keep: bool,
-    replace: bool,
-    checkout: bool,
-    network_host: bool,
-    no_gen_certs: bool,
-):
-    """Shepherd CLI:
-    A tool to manage your environment, services, and database.
-    """
-    pass
+class ShepherdMng:
+    def __init__(self):
+        self.configMng = ConfigMng(os.path.join(("~"), ".shpd.conf"))
+        self.environmentMng = EnvironmentMng()
+        self.serviceMng = ServiceMng()
+        self.databaseMng = DatabaseMng()
+        self.cli_flags = {}
+        Util.ensure_dirs(self.configMng.constants)
 
+    def create_cli(self):
+        @click.group()
+        @click.option(
+            "-v", "--verbose", is_flag=True, help="Enable verbose mode."
+        )
+        @click.option("-b", "--brief", is_flag=True, help="Brief output.")
+        @click.option(
+            "-y",
+            "--yes",
+            is_flag=True,
+            help="Automatic yes to prompts; run non-interactively.",
+        )
+        @click.option("-a", "--all", is_flag=True, help="Apply to all.")
+        @click.option("-f", "--follow", is_flag=True, help="Follow log output.")
+        @click.option(
+            "-p",
+            "--porcelain",
+            is_flag=True,
+            help="Produce machine-readable output.",
+        )
+        @click.option(
+            "-k", "--keep", is_flag=True, help="Keep instead of drop."
+        )
+        @click.option(
+            "-r", "--replace", is_flag=True, help="Replace when already there."
+        )
+        @click.option(
+            "-c",
+            "--checkout",
+            is_flag=True,
+            help="Contextually checkout the environment.",
+        )
+        @click.option(
+            "-H", "--network-host", is_flag=True, help="Use host's network."
+        )
+        @click.option(
+            "-n",
+            "--no-gen-certs",
+            is_flag=True,
+            help="Do not generate certificates.",
+        )
+        def cli(**kwargs: dict[str, Any]):
+            """Shepherd CLI:
+            A tool to manage your environment, services, and database."""
+            self.cli_flags = kwargs
 
-@click.group()
-def db():
-    """Database related operations."""
-    pass
+        cli.add_command(self.create_db_commands(), "db")
+        cli.add_command(self.create_env_commands(), "env")
+        cli.add_command(self.create_svc_commands(), "svc")
+        return cli
 
+    def create_db_commands(self):
+        @click.group()
+        def db():
+            """Database related operations."""
+            pass
 
-@db.command(name="build")
-def build_dbms():
-    """Build dbms image."""
-    databaseMng.build_dbms_image()
+        @db.command(name="build")
+        def build():  # pyright: ignore[reportUnusedFunction]
+            """Build dbms image."""
+            self.databaseMng.build_image()
 
+        @db.command(name="bootstrap")
+        def bootstrap():  # pyright: ignore[reportUnusedFunction]
+            """Bootstrap dbms service."""
+            self.databaseMng.bootstrap()
 
-@db.command(name="bootstrap")
-def bootstrap():
-    """Bootstrap dbms service."""
-    databaseMng.bootstrap_dbms_service()
+        @db.command(name="up")
+        def start():  # pyright: ignore[reportUnusedFunction]
+            """Start dbms service."""
+            self.databaseMng.start()
 
+        @db.command(name="halt")
+        def halt():  # pyright: ignore[reportUnusedFunction]
+            """Halt dbms service."""
+            self.databaseMng.halt()
 
-@db.command(name="start")
-def up():
-    """Start dbms service."""
-    databaseMng.start_dbms_service()
+        @db.command(name="stdout")
+        def stdout():  # pyright: ignore[reportUnusedFunction]
+            """Show dbms service stdout."""
+            self.databaseMng.stdout()
 
+        @db.command(name="shell")
+        def shell():  # pyright: ignore[reportUnusedFunction]
+            """Get a shell session for the dbms service."""
+            self.databaseMng.shell()
 
-@db.command(name="halt")
-def halt():
-    """Halt dbms service."""
-    databaseMng.halt_dbms_service()
+        @db.command(name="sql")
+        def sql_shell():  # pyright: ignore[reportUnusedFunction]
+            """Get a SQL session for the dbms service."""
+            self.databaseMng.sql_shell()
 
+        return db
 
-@db.command(name="stdout")
-def stdout():
-    """Show dbms service stdout."""
-    databaseMng.show_dbms_stdout()
+    def create_env_commands(self):
+        @click.group()
+        def env():
+            """Environment related operations."""
+            pass
 
+        @env.command(name="init")
+        @click.argument("db_type")
+        @click.argument("env_tag")
+        def init(  # pyright: ignore[reportUnusedFunction]
+            db_type: str, env_tag: str
+        ):
+            """Init an environment."""
+            self.environmentMng.init(db_type, env_tag)
 
-@db.command(name="shell")
-def shell():
-    """Get a shell session for the dbms service."""
-    databaseMng.get_dbms_shell_session()
+        @env.command(name="clone")
+        @click.argument("src_env_tag")
+        @click.argument("dst_env_tag")
+        def clone(  # pyright: ignore[reportUnusedFunction]
+            src_env_tag: str, dst_env_tag: str
+        ):
+            """Clone an environment."""
+            self.environmentMng.clone(src_env_tag, dst_env_tag)
 
+        @env.command(name="checkout")
+        @click.argument("env_tag")
+        def checkout(env_tag: str):  # pyright: ignore[reportUnusedFunction]
+            """Checkout an environment."""
+            self.environmentMng.checkout(env_tag)
 
-@db.command(name="sql")
-def sql_shell():
-    """Get a SQL session for the dbms service."""
-    databaseMng.get_sql_shell_session()
+        @env.command(name="noactive")
+        def set():  # pyright: ignore[reportUnusedFunction]
+            """Set all environments as non-active."""
+            self.environmentMng.set_all_non_active()
 
+        @env.command(name="list")
+        def list():  # pyright: ignore[reportUnusedFunction]
+            """List all available environments."""
+            self.environmentMng.list()
 
-# Environment commands
-@click.group()
-def env():
-    """Environment related operations."""
-    pass
+        @env.command(name="up")
+        def start():  # pyright: ignore[reportUnusedFunction]
+            """Start environment."""
+            self.environmentMng.start()
 
+        @env.command(name="halt")
+        def halt():  # pyright: ignore[reportUnusedFunction]
+            """Halt environment."""
+            self.environmentMng.halt()
 
-@env.command(name="init")
-@click.argument("db_type")
-@click.argument("env_tag")
-def init_environment(db_type: str, env_tag: str):
-    """Init an environment with a dbms type and an environment's tag name."""
-    environmentMng.init_environment(db_type, env_tag)
+        @env.command(name="reload")
+        def reload():  # pyright: ignore[reportUnusedFunction]
+            """Reload environment."""
+            self.environmentMng.reload()
 
+        @env.command(name="status")
+        def status():  # pyright: ignore[reportUnusedFunction]
+            """Print environment's status."""
+            self.environmentMng.status()
 
-@env.command(name="clone")
-@click.argument("src_env_tag")
-@click.argument("dst_env_tag")
-def clone_environment(src_env_tag: str, dst_env_tag: str):
-    """Clone an environment."""
-    environmentMng.clone_environment(src_env_tag, dst_env_tag)
+        return env
 
+    def create_svc_commands(self):
+        @click.group()
+        def svc():
+            """Service related operations."""
+            pass
 
-@env.command(name="checkout")
-@click.argument("env_tag")
-def checkout_environment(env_tag: str):
-    """Checkout an environment."""
-    environmentMng.checkout_environment(env_tag)
+        @svc.command(name="build")
+        @click.argument("service_type", type=str)
+        def build(service_type: str):  # pyright: ignore[reportUnusedFunction]
+            """Build service image."""
+            self.serviceMng.build_image(service_type)
 
+        @svc.command(name="bootstrap")
+        @click.argument("service_type", type=str)
+        def bootstrap(  # pyright: ignore[reportUnusedFunction]
+            service_type: str,
+        ):
+            """Bootstrap service."""
+            self.serviceMng.bootstrap(service_type)
 
-@env.command(name="noactive")
-def set_noactive():
-    """Set all environments as non-active."""
-    environmentMng.set_all_non_active()
+        @svc.command(name="up")
+        @click.argument("service_type", type=str)
+        def start(service_type: str):  # pyright: ignore[reportUnusedFunction]
+            """Start service."""
+            self.serviceMng.start(service_type)
 
+        @svc.command(name="halt")
+        @click.argument("service_type", type=str)
+        def halt(service_type: str):  # pyright: ignore[reportUnusedFunction]
+            """Stop service."""
+            self.serviceMng.stop(service_type)
 
-@env.command(name="list")
-def list_environments():
-    """List all available environments."""
-    environmentMng.list_environments()
+        @svc.command(name="reload")
+        @click.argument("service_type", type=str)
+        def reload(service_type: str):  # pyright: ignore[reportUnusedFunction]
+            """Reload service."""
+            self.serviceMng.reload(service_type)
 
+        @svc.command(name="stdout")
+        @click.argument("service_id", type=str)
+        def stdout(service_id: str):  # pyright: ignore[reportUnusedFunction]
+            """Show service stdout."""
+            self.serviceMng.stdout(service_id)
 
-@env.command(name="start")
-def start_environment():
-    """Start environment."""
-    environmentMng.start_environment()
+        @svc.command(name="shell")
+        @click.argument("service_id", type=str)
+        def shell(service_id: str):  # pyright: ignore[reportUnusedFunction]
+            """Get a shell session for the service."""
+            self.serviceMng.shell(service_id)
 
-
-@env.command(name="halt")
-def halt_environment():
-    """Halt environment."""
-    environmentMng.halt_environment()
-
-
-@env.command(name="reload")
-def reload_environment():
-    """Reload environment."""
-    environmentMng.reload_environment()
-
-
-@env.command(name="status")
-def environment_status():
-    """Print environment's status."""
-    environmentMng.environment_status()
-
-
-@click.group()
-def svc():
-    """Service related operations."""
-    pass
-
-
-@svc.command(name="build")
-@click.argument("service_type", type=str)
-def build_service(service_type: str):
-    """Build service image."""
-    serviceMng.build_service_image(service_type)
-
-
-@svc.command(name="bootstrap")
-@click.argument("service_type", type=str)
-def bootstrap_service(service_type: str):
-    """Bootstrap service."""
-    serviceMng.bootstrap_service(service_type)
-
-
-@svc.command(name="start")
-@click.argument("service_type", type=str)
-def start_service(service_type: str):
-    """Start service."""
-    serviceMng.start_service(service_type)
-
-
-@svc.command(name="halt")
-@click.argument("service_type", type=str)
-def stop_service(service_type: str):
-    """Stop service."""
-    serviceMng.stop_service(service_type)
-
-
-@svc.command(name="reload")
-@click.argument("service_type", type=str)
-def reload_service(service_type: str):
-    """Reload service."""
-    serviceMng.reload_service(service_type)
-
-
-@svc.command(name="stdout")
-@click.argument("service_id", type=str)
-def service_stdout(service_id: str):
-    """Show service stdout."""
-    serviceMng.show_service_stdout(service_id)
-
-
-@svc.command(name="shell")
-@click.argument("service_id", type=str)
-def service_shell(service_id: str):
-    """Get a shell session for the service."""
-    serviceMng.get_service_shell(service_id)
+        return svc
 
 
 if __name__ == "__main__":
+    shepherd = ShepherdMng()
+    cli = shepherd.create_cli()
     cli()

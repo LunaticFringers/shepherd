@@ -19,3 +19,46 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
+
+import os
+import sys
+
+from rich.console import Console
+
+from .constants import Constants
+
+
+class Util:
+    console = Console()
+
+    @staticmethod
+    def create_dir(dir_path: str, desc: str):
+        try:
+            os.makedirs(dir_path, exist_ok=True)
+        except OSError as e:
+            Util.print_error_and_die(
+                f"[{desc}] Failed to create directory: {dir_path}\nError: {e}"
+            )
+
+    @staticmethod
+    def print_error_and_die(message: str):
+        Util.console.print(
+            f"[bold red]ERROR:[/bold red] {message}", style="bold red"
+        )
+        sys.exit(1)
+
+    @staticmethod
+    def ensure_dirs(constants: Constants):
+        dirs = {
+            "LO_ENVS_IMAGES_DIR": constants.SHPD_ENV_IMGS_DIR,
+            "LO_ENVS_CERTS_DIR": constants.SHPD_CERTS_DIR,
+            "LO_ENVS_SSH_DIR": constants.SHPD_SSH_DIR,
+            "LO_ENVS_SSHD_DIR": constants.SHPD_SSHD_DIR,
+        }
+
+        for desc, dir_path in dirs.items():
+            resolved_path = os.path.realpath(dir_path)
+            if not os.path.exists(resolved_path) or not os.path.isdir(
+                resolved_path
+            ):
+                Util.create_dir(resolved_path, desc)

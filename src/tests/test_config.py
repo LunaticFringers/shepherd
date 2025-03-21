@@ -27,7 +27,6 @@ import pytest
 from pytest_mock import MockerFixture
 
 from config import Config, ConfigMng
-from util import Constants
 
 config_json = """{
   "shpd_registry": {
@@ -246,6 +245,8 @@ values = """
   cert_email=lf@sslip.io
   cert_subject_alternative_names=
 
+  shpd_dir=.
+
   # Database Default Configuration
   db_sys_usr=sys
   db_sys_psw=sys
@@ -257,8 +258,6 @@ values = """
 def test_load_config(mocker: MockerFixture):
     """Test regular parsing"""
 
-    cMng = ConfigMng(".")
-
     mock_open1 = mock_open(read_data=config_json)
     mock_open2 = mock_open(read_data=values)
 
@@ -268,6 +267,7 @@ def test_load_config(mocker: MockerFixture):
         side_effect=[mock_open1.return_value, mock_open2.return_value],
     )
 
+    cMng = ConfigMng(".shpd.conf")
     config: Config = cMng.load_config()
 
     service_types = config.service_types
@@ -384,13 +384,13 @@ def test_load_config(mocker: MockerFixture):
 def test_load_user_values_file_not_found(mocker: MockerFixture):
     """Test file_values_path does not exist"""
 
-    cMng = ConfigMng(".")
-
     mock_open1 = mock_open(read_data="{}")
     mocker.patch(
         "builtins.open",
         side_effect=[mock_open1.return_value, OSError("File not found")],
     )
+
+    cMng = ConfigMng(".shpd.conf")
 
     with pytest.raises(FileNotFoundError):
         cMng.load_config()
@@ -398,8 +398,6 @@ def test_load_user_values_file_not_found(mocker: MockerFixture):
 
 def test_load_invalid_user_values(mocker: MockerFixture):
     """Test invalid user values"""
-
-    cMng = ConfigMng(".")
 
     mock_open1 = mock_open(read_data="{}")
     mock_open2 = mock_open(read_data="key")
@@ -410,33 +408,32 @@ def test_load_invalid_user_values(mocker: MockerFixture):
         side_effect=[mock_open1.return_value, mock_open2.return_value],
     )
 
+    cMng = ConfigMng(".shpd.conf")
+
     with pytest.raises(ValueError):
         cMng.load_config()
 
 
 def test_store_config_with_real_files():
     """Test storing config using real files in ./"""
-    cMng = ConfigMng(".")
-
-    config_file_path = Constants.CONFIG_FILE
-    values_file_path = Constants.CONFIG_VALUES_FILE
 
     try:
         with (
-            open(config_file_path, "w") as config_file,
-            open(values_file_path, "w") as values_file,
+            open(".shpd.json", "w") as config_file,
+            open(".shpd.conf", "w") as values_file,
         ):
             config_file.write(config_json)
             values_file.write(values)
 
+        cMng = ConfigMng(values_file.name)
         config: Config = cMng.load_config()
         cMng.store_config(config)
 
-        with open(config_file_path, "r") as output_file:
+        with open(".shpd.json", "r") as output_file:
             content = output_file.read()
             assert content == config_json
 
     finally:
-        for file_path in (config_file_path, values_file_path, config_file_path):
+        for file_path in (".shpd.json", ".shpd.conf"):
             if os.path.exists(file_path):
                 os.remove(file_path)
