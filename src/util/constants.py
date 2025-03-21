@@ -20,6 +20,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+import os
 from dataclasses import dataclass
 
 
@@ -27,12 +28,37 @@ from dataclasses import dataclass
 class Constants:
     """Constants for the application."""
 
+    SHPD_CONFIG_VALUES_FILE: str
+    SHPD_DIR: str
+
+    HOME_DIR: str = os.path.expanduser("~")
+
+    @property
+    def SHPD_CONFIG_FILE(self) -> str:
+        return os.path.join(self.SHPD_DIR, ".shpd.json")
+
+    @property
+    def SHPD_ENVS_DIR(self) -> str:
+        return os.path.join(self.SHPD_DIR, "envs")
+
+    @property
+    def SHPD_ENV_IMGS_DIR(self) -> str:
+        return os.path.join(self.SHPD_DIR, ".env_imgs")
+
+    @property
+    def SHPD_CERTS_DIR(self) -> str:
+        return os.path.join(self.SHPD_DIR, ".certs")
+
+    @property
+    def SHPD_SSH_DIR(self) -> str:
+        return os.path.join(self.SHPD_DIR, ".ssh")
+
+    @property
+    def SHPD_SSHD_DIR(self) -> str:
+        return os.path.join(self.SHPD_DIR, ".sshd")
+
     APP_NAME: str = "shpdctl"
     APP_VERSION: str = "0.0.0"
     APP_AUTHOR: str = "Lunatic Fringers"
     APP_LICENSE: str = "MIT"
-    APP_URL: str = ""
-
-    # Configuration file
-    CONFIG_FILE: str = ".shpdctl.json"
-    CONFIG_VALUES_FILE: str = "shpdctl.conf"
+    APP_URL: str = "https://github.com/LunaticFringers/shepherd"

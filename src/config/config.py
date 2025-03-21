@@ -25,7 +25,7 @@ import os
 from dataclasses import asdict, dataclass, field
 from typing import Any, Dict, List, Optional
 
-from util import Constants
+from util import Constants, Util
 
 
 @dataclass
@@ -261,20 +261,21 @@ class ConfigMng:
       placeholders.
     """
 
-    file_config_path: str
     file_values_path: str
     original_placeholders: Dict[str, str] = {}
 
-    def __init__(self, shpd_dir: str):
+    def __init__(self, file_values_path: str):
         """
         Initializes the configuration manager.
 
         :param shpd_dir: The base directory where configuration files
         are stored.
         """
-        self.file_config_path = os.path.join(shpd_dir, Constants.CONFIG_FILE)
-        self.file_values_path = os.path.join(
-            shpd_dir, Constants.CONFIG_VALUES_FILE
+        self.file_values_path = file_values_path
+        self.values = self.load_user_values()
+        self.constants = Constants(
+            SHPD_CONFIG_VALUES_FILE=self.file_values_path,
+            SHPD_DIR=self.values["shpd_dir"],
         )
 
     def load_user_values(self) -> Dict[str, str]:
@@ -294,9 +295,8 @@ class ConfigMng:
         user_values: Dict[str, str] = {}
 
         if not os.path.exists(self.file_values_path):
-            raise FileNotFoundError(
-                f"""The configuration file '{self.file_values_path}'
-                does not exist."""
+            Util.print_error_and_die(
+                f"'{self.file_values_path}' does not exist."
             )
 
         try:
@@ -314,7 +314,7 @@ class ConfigMng:
                             f"Invalid line format in config file: '{line}'"
                         )
         except Exception as e:
-            raise ValueError(f"Error reading configuration file: {e}")
+            Util.print_error_and_die(f"Error reading configuration file: {e}")
 
         return user_values
 
@@ -383,11 +383,12 @@ class ConfigMng:
         :raises FileNotFoundError: If the configuration file is missing.
         :raises ValueError: If the configuration file is malformed.
         """
-        with open(self.file_config_path, "r", encoding="utf-8") as f:
+        with open(self.constants.SHPD_CONFIG_FILE, "r", encoding="utf-8") as f:
             config_data = json.load(f)
 
-        values = self.load_user_values()
-        substituted_config = self.substitute_placeholders(config_data, values)
+        substituted_config = self.substitute_placeholders(
+            config_data, self.values
+        )
 
         return parse_config(json.dumps(substituted_config))
 
@@ -431,5 +432,5 @@ class ConfigMng:
 
         processed_config = replace_keys_with_placeholders(asdict(config))
 
-        with open(self.file_config_path, "w", encoding="utf-8") as f:
+        with open(self.constants.SHPD_CONFIG_FILE, "w", encoding="utf-8") as f:
             json.dump(processed_config, f, indent=2)

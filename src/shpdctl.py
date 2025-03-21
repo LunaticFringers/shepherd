@@ -20,20 +20,26 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+import os
 from typing import Any
 
 import click
 
+from config import ConfigMng
 from database import DatabaseMng
 from environment import EnvironmentMng
 from service import ServiceMng
+from util import Util
 
 
 class ShepherdMng:
     def __init__(self):
-        self.databaseMng = DatabaseMng()
+        self.configMng = ConfigMng(os.path.join(("~"), ".shpd.conf"))
         self.environmentMng = EnvironmentMng()
         self.serviceMng = ServiceMng()
+        self.databaseMng = DatabaseMng()
+        self.cli_flags = {}
+        Util.ensure_dirs(self.configMng.constants)
 
     def create_cli(self):
         @click.group()
@@ -79,7 +85,7 @@ class ShepherdMng:
         def cli(**kwargs: dict[str, Any]):
             """Shepherd CLI:
             A tool to manage your environment, services, and database."""
-            pass
+            self.cli_flags = kwargs
 
         cli.add_command(self.create_db_commands(), "db")
         cli.add_command(self.create_env_commands(), "env")

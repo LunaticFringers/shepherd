@@ -7,7 +7,7 @@ APP_NAME = "shpdctl"
 ENTRY_FILE = "shpdctl.py"
 ICON_PATH = "resources/icon.ico"
 EXCLUDE_LIBS: list[str] = []
-EXTRA_FILES = ["resources/shpdctl.json", "resources/shpdctl.conf"]
+EXTRA_FILES = ["resources/shpd.json", "resources/shpd.conf"]
 VERSION_FILE = "version"
 
 git_tagging = False  # Default Git tagging (disabled)
