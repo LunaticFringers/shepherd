@@ -271,11 +271,11 @@ class ConfigMng:
         :param shpd_dir: The base directory where configuration files
         are stored.
         """
-        self.file_values_path = file_values_path
+        self.file_values_path = os.path.expanduser(file_values_path)
         self.values = self.load_user_values()
         self.constants = Constants(
             SHPD_CONFIG_VALUES_FILE=self.file_values_path,
-            SHPD_DIR=self.values["shpd_dir"],
+            SHPD_DIR=os.path.expanduser(self.values["shpd_dir"]),
         )
 
     def load_user_values(self) -> Dict[str, str]:

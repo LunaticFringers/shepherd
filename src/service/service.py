@@ -72,8 +72,8 @@ class ServiceMng:
         """Start a service."""
         pass
 
-    def stop(self, service_type: str):
-        """Stop a service."""
+    def halt(self, service_type: str):
+        """Halt a service."""
         pass
 
     def reload(self, service_type: str):
