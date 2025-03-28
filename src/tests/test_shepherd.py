@@ -27,7 +27,10 @@ import pytest
 from click.testing import CliRunner
 from pytest_mock import MockerFixture
 
-from shpdctl import ShepherdMng
+from database import DatabaseMng
+from environment import EnvironmentMng
+from service import ServiceMng
+from shpdctl import ShepherdMng, cli
 
 values = """
   # Oracle (ora) Configuration
@@ -86,7 +89,7 @@ values = """
 
 
 @pytest.fixture
-def temp_home(tmp_path: Path) -> Path:
+def temp_home(tmp_path: Path, mocker: MockerFixture) -> Path:
     """Fixture to create a temporary home directory and .shpd.conf file."""
     temp_home = tmp_path / "home"
     temp_home.mkdir()
@@ -94,29 +97,16 @@ def temp_home(tmp_path: Path) -> Path:
     config_file = temp_home / ".shpd.conf"
     config_file.write_text(values)
 
+    mocker.patch(
+        "os.path.expanduser",
+        side_effect=[temp_home / ".shpd.conf", temp_home / ".shpd"],
+    )
+
     return temp_home
 
 
-@pytest.fixture
-def shepherd(temp_home: Path, mocker: MockerFixture) -> ShepherdMng:
-
-    # ~ -> temp_home
-    mocker.patch(
-        "os.path.expanduser",
-        return_value=str(os.path.join((temp_home), ".shpd.conf")),
-    )
-
-    return ShepherdMng()
-
-
-def test_shepherdmng_creates_dirs(temp_home: Path, mocker: MockerFixture):
+def test_shepherdmng_creates_dirs(temp_home: Path):
     """Test that ShepherdMng creates the required directories."""
-
-    # ~ -> temp_home
-    mocker.patch(
-        "os.path.expanduser",
-        return_value=str(os.path.join((temp_home), ".shpd.conf")),
-    )
 
     sm = ShepherdMng()
 
@@ -144,48 +134,410 @@ def runner() -> CliRunner:
     return CliRunner()
 
 
-def test_create_cli(shepherd: ShepherdMng, runner: CliRunner):
-    cli = shepherd.create_cli()
+def test_cli_flags_no_flags(
+    temp_home: Path, runner: CliRunner, mocker: MockerFixture
+):
+    mock_init = mocker.patch.object(ShepherdMng, "__init__", return_value=None)
 
-    result = runner.invoke(cli, ["--help"])
+    result = runner.invoke(cli, ["test"])
+
     assert result.exit_code == 0
-    assert "Shepherd CLI" in result.output
-    assert "db" in result.output
-    assert "env" in result.output
-    assert "svc" in result.output
+    mock_init.assert_called_once_with(
+        {
+            "verbose": False,
+            "yes": False,
+            "all": False,
+            "follow": False,
+            "porcelain": False,
+            "keep": False,
+            "replace": False,
+            "checkout": False,
+        }
+    )
 
-    result = runner.invoke(cli, ["-v", "--help"])
 
+def test_cli_flags_verbose(
+    temp_home: Path, runner: CliRunner, mocker: MockerFixture
+):
+    mock_init = mocker.patch.object(ShepherdMng, "__init__", return_value=None)
 
-def test_create_env_commands(shepherd: ShepherdMng, runner: CliRunner):
-    env_commands = shepherd.create_env_commands()
+    result = runner.invoke(cli, ["--verbose", "test"])
 
-    result = runner.invoke(env_commands, ["--help"])
+    flags = {
+        "verbose": True,
+        "yes": False,
+        "all": False,
+        "follow": False,
+        "porcelain": False,
+        "keep": False,
+        "replace": False,
+        "checkout": False,
+    }
+
     assert result.exit_code == 0
-    assert "Environment related operations" in result.output
+    mock_init.assert_called_once_with(flags)
 
-    assert "init" in result.output
-    assert "clone" in result.output
-    assert "checkout" in result.output
-    assert "noactive" in result.output
-    assert "list" in result.output
-    assert "up" in result.output
-    assert "halt" in result.output
-    assert "reload" in result.output
-    assert "status" in result.output
+    result = runner.invoke(cli, ["-v", "test"])
 
-
-def test_create_svc_commands(shepherd: ShepherdMng, runner: CliRunner):
-    svc_commands = shepherd.create_svc_commands()
-
-    result = runner.invoke(svc_commands, ["--help"])
     assert result.exit_code == 0
-    assert "Service related operations" in result.output
+    mock_init.assert_called_with(flags)
 
-    assert "build" in result.output
-    assert "bootstrap" in result.output
-    assert "up" in result.output
-    assert "halt" in result.output
-    assert "reload" in result.output
-    assert "stdout" in result.output
-    assert "shell" in result.output
+
+def test_cli_flags_yes(
+    temp_home: Path, runner: CliRunner, mocker: MockerFixture
+):
+    mock_init = mocker.patch.object(ShepherdMng, "__init__", return_value=None)
+
+    result = runner.invoke(cli, ["--yes", "test"])
+
+    flags = {
+        "verbose": False,
+        "yes": True,
+        "all": False,
+        "follow": False,
+        "porcelain": False,
+        "keep": False,
+        "replace": False,
+        "checkout": False,
+    }
+
+    assert result.exit_code == 0
+    mock_init.assert_called_once_with(flags)
+
+    result = runner.invoke(cli, ["-y", "test"])
+
+    assert result.exit_code == 0
+    mock_init.assert_called_with(flags)
+
+
+def test_cli_flags_all(
+    temp_home: Path, runner: CliRunner, mocker: MockerFixture
+):
+    mock_init = mocker.patch.object(ShepherdMng, "__init__", return_value=None)
+
+    result = runner.invoke(cli, ["--all", "test"])
+
+    flags = {
+        "verbose": False,
+        "yes": False,
+        "all": True,
+        "follow": False,
+        "porcelain": False,
+        "keep": False,
+        "replace": False,
+        "checkout": False,
+    }
+
+    assert result.exit_code == 0
+    mock_init.assert_called_once_with(flags)
+
+    result = runner.invoke(cli, ["-a", "test"])
+
+    assert result.exit_code == 0
+    mock_init.assert_called_with(flags)
+
+
+def test_cli_flags_follow(
+    temp_home: Path, runner: CliRunner, mocker: MockerFixture
+):
+    mock_init = mocker.patch.object(ShepherdMng, "__init__", return_value=None)
+
+    result = runner.invoke(cli, ["--follow", "test"])
+
+    flags = {
+        "verbose": False,
+        "yes": False,
+        "all": False,
+        "follow": True,
+        "porcelain": False,
+        "keep": False,
+        "replace": False,
+        "checkout": False,
+    }
+
+    assert result.exit_code == 0
+    mock_init.assert_called_once_with(flags)
+
+    result = runner.invoke(cli, ["-f", "test"])
+
+    assert result.exit_code == 0
+    mock_init.assert_called_with(flags)
+
+
+def test_cli_flags_porcelain(
+    temp_home: Path, runner: CliRunner, mocker: MockerFixture
+):
+    mock_init = mocker.patch.object(ShepherdMng, "__init__", return_value=None)
+
+    result = runner.invoke(cli, ["--porcelain", "test"])
+
+    flags = {
+        "verbose": False,
+        "yes": False,
+        "all": False,
+        "follow": False,
+        "porcelain": True,
+        "keep": False,
+        "replace": False,
+        "checkout": False,
+    }
+
+    assert result.exit_code == 0
+    mock_init.assert_called_once_with(flags)
+
+    result = runner.invoke(cli, ["-p", "test"])
+
+    assert result.exit_code == 0
+    mock_init.assert_called_with(flags)
+
+
+def test_cli_flags_keep(
+    temp_home: Path, runner: CliRunner, mocker: MockerFixture
+):
+    mock_init = mocker.patch.object(ShepherdMng, "__init__", return_value=None)
+
+    result = runner.invoke(cli, ["--keep", "test"])
+
+    flags = {
+        "verbose": False,
+        "yes": False,
+        "all": False,
+        "follow": False,
+        "porcelain": False,
+        "keep": True,
+        "replace": False,
+        "checkout": False,
+    }
+
+    assert result.exit_code == 0
+    mock_init.assert_called_once_with(flags)
+
+    result = runner.invoke(cli, ["-k", "test"])
+
+    assert result.exit_code == 0
+    mock_init.assert_called_with(flags)
+
+
+def test_cli_flags_replace(
+    temp_home: Path, runner: CliRunner, mocker: MockerFixture
+):
+    mock_init = mocker.patch.object(ShepherdMng, "__init__", return_value=None)
+
+    result = runner.invoke(cli, ["--replace", "test"])
+
+    flags = {
+        "verbose": False,
+        "yes": False,
+        "all": False,
+        "follow": False,
+        "porcelain": False,
+        "keep": False,
+        "replace": True,
+        "checkout": False,
+    }
+
+    assert result.exit_code == 0
+    mock_init.assert_called_once_with(flags)
+
+    result = runner.invoke(cli, ["-r", "test"])
+
+    assert result.exit_code == 0
+    mock_init.assert_called_with(flags)
+
+
+def test_cli_flags_checkout(
+    temp_home: Path, runner: CliRunner, mocker: MockerFixture
+):
+    mock_init = mocker.patch.object(ShepherdMng, "__init__", return_value=None)
+
+    result = runner.invoke(cli, ["--checkout", "test"])
+
+    flags = {
+        "verbose": False,
+        "yes": False,
+        "all": False,
+        "follow": False,
+        "porcelain": False,
+        "keep": False,
+        "replace": False,
+        "checkout": True,
+    }
+
+    assert result.exit_code == 0
+    mock_init.assert_called_once_with(flags)
+
+    result = runner.invoke(cli, ["-c", "test"])
+
+    assert result.exit_code == 0
+    mock_init.assert_called_with(flags)
+
+
+def test_db_start(temp_home: Path, runner: CliRunner, mocker: MockerFixture):
+    mock_start = mocker.patch.object(DatabaseMng, "start")
+    result = runner.invoke(cli, ["db", "start"])
+    assert result.exit_code == 0
+    mock_start.assert_called_once()
+
+
+def test_db_build(temp_home: Path, runner: CliRunner, mocker: MockerFixture):
+    mock_build = mocker.patch.object(DatabaseMng, "build_image")
+    result = runner.invoke(cli, ["db", "build"])
+    assert result.exit_code == 0
+    mock_build.assert_called_once()
+
+
+def test_db_bootstrap(
+    temp_home: Path, runner: CliRunner, mocker: MockerFixture
+):
+    mock_bootstrap = mocker.patch.object(DatabaseMng, "bootstrap")
+    result = runner.invoke(cli, ["db", "bootstrap"])
+    assert result.exit_code == 0
+    mock_bootstrap.assert_called_once()
+
+
+def test_db_halt(temp_home: Path, runner: CliRunner, mocker: MockerFixture):
+    mock_halt = mocker.patch.object(DatabaseMng, "halt")
+    result = runner.invoke(cli, ["db", "halt"])
+    assert result.exit_code == 0
+    mock_halt.assert_called_once()
+
+
+def test_db_stdout(temp_home: Path, runner: CliRunner, mocker: MockerFixture):
+    mock_stdout = mocker.patch.object(DatabaseMng, "stdout")
+    result = runner.invoke(cli, ["db", "stdout"])
+    assert result.exit_code == 0
+    mock_stdout.assert_called_once()
+
+
+def test_db_shell(temp_home: Path, runner: CliRunner, mocker: MockerFixture):
+    mock_shell = mocker.patch.object(DatabaseMng, "shell")
+    result = runner.invoke(cli, ["db", "shell"])
+    assert result.exit_code == 0
+    mock_shell.assert_called_once()
+
+
+def test_db_sql_shell(
+    temp_home: Path, runner: CliRunner, mocker: MockerFixture
+):
+    mock_sql_shell = mocker.patch.object(DatabaseMng, "sql_shell")
+    result = runner.invoke(cli, ["db", "sql"])
+    assert result.exit_code == 0
+    mock_sql_shell.assert_called_once()
+
+
+def test_env_init(temp_home: Path, runner: CliRunner, mocker: MockerFixture):
+    mock_init = mocker.patch.object(EnvironmentMng, "init")
+    result = runner.invoke(cli, ["env", "init", "db_type", "env_tag"])
+    assert result.exit_code == 0
+    mock_init.assert_called_once_with("db_type", "env_tag")
+
+
+def test_env_clone(temp_home: Path, runner: CliRunner, mocker: MockerFixture):
+    mock_clone = mocker.patch.object(EnvironmentMng, "clone")
+    result = runner.invoke(cli, ["env", "clone", "src_env_tag", "dst_env_tag"])
+    assert result.exit_code == 0
+    mock_clone.assert_called_once_with("src_env_tag", "dst_env_tag")
+
+
+def test_env_checkout(
+    temp_home: Path, runner: CliRunner, mocker: MockerFixture
+):
+    mock_checkout = mocker.patch.object(EnvironmentMng, "checkout")
+    result = runner.invoke(cli, ["env", "checkout", "env_tag"])
+    assert result.exit_code == 0
+    mock_checkout.assert_called_once_with("env_tag")
+
+
+def test_env_set_noactive(
+    temp_home: Path, runner: CliRunner, mocker: MockerFixture
+):
+    mock_noactive = mocker.patch.object(EnvironmentMng, "set_all_non_active")
+    result = runner.invoke(cli, ["env", "noactive"])
+    assert result.exit_code == 0
+    mock_noactive.assert_called_once()
+
+
+def test_env_list(temp_home: Path, runner: CliRunner, mocker: MockerFixture):
+    mock_list = mocker.patch.object(EnvironmentMng, "list")
+    result = runner.invoke(cli, ["env", "list"])
+    assert result.exit_code == 0
+    mock_list.assert_called_once()
+
+
+def test_env_start(temp_home: Path, runner: CliRunner, mocker: MockerFixture):
+    mock_start = mocker.patch.object(EnvironmentMng, "start")
+    result = runner.invoke(cli, ["env", "start"])
+    assert result.exit_code == 0
+    mock_start.assert_called_once()
+
+
+def test_env_halt(temp_home: Path, runner: CliRunner, mocker: MockerFixture):
+    mock_halt = mocker.patch.object(EnvironmentMng, "halt")
+    result = runner.invoke(cli, ["env", "halt"])
+    assert result.exit_code == 0
+    mock_halt.assert_called_once()
+
+
+def test_env_reload(temp_home: Path, runner: CliRunner, mocker: MockerFixture):
+    mock_reload = mocker.patch.object(EnvironmentMng, "reload")
+    result = runner.invoke(cli, ["env", "reload"])
+    assert result.exit_code == 0
+    mock_reload.assert_called_once()
+
+
+def test_env_status(temp_home: Path, runner: CliRunner, mocker: MockerFixture):
+    mock_status = mocker.patch.object(EnvironmentMng, "status")
+    result = runner.invoke(cli, ["env", "status"])
+    assert result.exit_code == 0
+    mock_status.assert_called_once()
+
+
+def test_srv_build(temp_home: Path, runner: CliRunner, mocker: MockerFixture):
+    mock_build = mocker.patch.object(ServiceMng, "build_image")
+    result = runner.invoke(cli, ["svc", "build", "service_type"])
+    assert result.exit_code == 0
+    mock_build.assert_called_once_with("service_type")
+
+
+def test_srv_bootstrap(
+    temp_home: Path, runner: CliRunner, mocker: MockerFixture
+):
+    mock_bootstrap = mocker.patch.object(ServiceMng, "bootstrap")
+    result = runner.invoke(cli, ["svc", "bootstrap", "service_type"])
+    assert result.exit_code == 0
+    mock_bootstrap.assert_called_once_with("service_type")
+
+
+def test_srv_start(temp_home: Path, runner: CliRunner, mocker: MockerFixture):
+    mock_start = mocker.patch.object(ServiceMng, "start")
+    result = runner.invoke(cli, ["svc", "start", "service_type"])
+    assert result.exit_code == 0
+    mock_start.assert_called_once_with("service_type")
+
+
+def test_srv_halt(temp_home: Path, runner: CliRunner, mocker: MockerFixture):
+    mock_halt = mocker.patch.object(ServiceMng, "halt")
+    result = runner.invoke(cli, ["svc", "halt", "service_type"])
+    assert result.exit_code == 0
+    mock_halt.assert_called_once_with("service_type")
+
+
+def test_srv_reload(temp_home: Path, runner: CliRunner, mocker: MockerFixture):
+    mock_reload = mocker.patch.object(ServiceMng, "reload")
+    result = runner.invoke(cli, ["svc", "reload", "service_type"])
+    assert result.exit_code == 0
+    mock_reload.assert_called_once_with("service_type")
+
+
+def test_srv_stdout(temp_home: Path, runner: CliRunner, mocker: MockerFixture):
+    mock_stdout = mocker.patch.object(ServiceMng, "stdout")
+    result = runner.invoke(cli, ["svc", "stdout", "service_id"])
+    assert result.exit_code == 0
+    mock_stdout.assert_called_once_with("service_id")
+
+
+def test_srv_shell(temp_home: Path, runner: CliRunner, mocker: MockerFixture):
+    mock_shell = mocker.patch.object(ServiceMng, "shell")
+    result = runner.invoke(cli, ["svc", "shell", "service_id"])
+    assert result.exit_code == 0
+    mock_shell.assert_called_once_with("service_id")
