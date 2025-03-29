@@ -1,6 +1,6 @@
 # Shepherd
 
-![Lint](https://github.com/LunaticFringers/shepherd/actions/workflows/lint.yaml/badge.svg)
+[![license](https://img.shields.io/badge/license-AGPL%20V3-blue)](https://github.com/LunaticFringers/shepherd/blob/master/LICENSE)
 [![codecov](https://codecov.io/gh/LunaticFringers/shepherd/branch/main/graph/badge.svg)](https://codecov.io/gh/LunaticFringers/shepherd)
 
 Shepherd implements an orchestrator tool useful for provisioning development
