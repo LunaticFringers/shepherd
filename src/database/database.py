@@ -18,7 +18,8 @@
 
 from typing import override
 
-from service import Service
+from config import ConfigMng
+from service import Service, ServiceMng
 
 
 class DatabaseService(Service):
@@ -74,43 +75,24 @@ class DatabaseService(Service):
         pass
 
 
-class DatabaseMng:
-    def build_image(self):
-        """Build a DBMS image."""
+class DatabaseMng(ServiceMng):
+
+    def __init__(self, configMng: ConfigMng):
+        self.configMng = configMng
         pass
 
-    def bootstrap(self):
-        """Bootstrap a DBMS service."""
-        pass
-
-    def start(self):
-        """Start a DBMS service."""
-        pass
-
-    def halt(self):
-        """Halt a DBMS service."""
-        pass
-
-    def stdout(self):
-        """Show a DBMS stdout."""
-        pass
-
-    def shell(self):
-        """Get a DBMS shell session."""
-        pass
-
-    def sql_shell(self):
+    def sql_shell_svc(self):
         """Get a SQL shell session."""
         pass
 
-    def create_database_user(self, user: str, psw: str):
+    def create_database_user_svc(self, user: str, psw: str):
         """Create a new database user."""
         pass
 
-    def create_database_directory(self, user: str, directory_name: str):
+    def create_database_directory_svc(self, user: str, directory_name: str):
         """Create a directory object in a database."""
         pass
 
-    def remove_database_user(self, user: str):
+    def remove_database_user_svc(self, user: str):
         """Drop an existing user."""
         pass

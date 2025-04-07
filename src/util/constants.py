@@ -24,6 +24,8 @@ from dataclasses import dataclass
 class Constants:
     """Constants for the application."""
 
+    # Configuration and environment variables
+
     SHPD_CONFIG_VALUES_FILE: str
     SHPD_DIR: str
 
@@ -51,8 +53,14 @@ class Constants:
     def SHPD_SSHD_DIR(self) -> str:
         return os.path.join(self.SHPD_DIR, ".sshd")
 
+    # Application metadata
+
     APP_NAME: str = "shpdctl"
     APP_VERSION: str = "0.0.0"
     APP_AUTHOR: str = "Lunatic Fringers"
     APP_LICENSE: str = "MIT"
     APP_URL: str = "https://github.com/LunaticFringers/shepherd"
+
+    # Environment types
+
+    ENV_TYPE_DOCKER_COMPOSE: str = "docker-compose"

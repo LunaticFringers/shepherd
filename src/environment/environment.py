@@ -18,26 +18,34 @@
 
 from __future__ import annotations
 
+import os
 from abc import ABC, abstractmethod
 from typing import List
 
+from config import ConfigMng, EnvironmentCfg
 from service import Service
+from util import Util
 
 
 class Environment(ABC):
 
+    type: str
+    db_type: str
     tag: str
     archived: bool
     active: bool
     services: List[Service]
 
-    def __init__(self):
+    def __init__(
+        self, config: ConfigMng, type: str, db_type: str, env_tag: str
+    ):
+        self.config = config
+        self.type = type
+        self.db_type = db_type
+        self.tag = env_tag
+        self.archived = False
+        self.active = False
         self.services = []
-
-    @abstractmethod
-    def init(self, db_type: str, env_tag: str):
-        """Initialize an environment."""
-        pass
 
     @abstractmethod
     def clone(self, dst_env_tag: str) -> Environment:
@@ -62,6 +70,24 @@ class Environment(ABC):
     @abstractmethod
     def status(self):
         """Get environment status."""
+        pass
+
+    def to_config(self) -> EnvironmentCfg:
+        """To config"""
+        return EnvironmentCfg(
+            type=self.type,
+            tag=self.tag,
+            services=[service.to_config() for service in self.services],
+            archived=self.archived,
+            active=self.active,
+        )
+
+    def realize(self):
+        """Realize the environment."""
+        Util.create_dir(
+            os.path.join(self.config.constants.SHPD_ENVS_DIR, self.tag),
+            self.tag,
+        )
         pass
 
     def get_tag(self) -> str:
@@ -97,39 +123,65 @@ class Environment(ABC):
         return self.services
 
 
-class EnvironmentMng:
-    def init(self, db_type: str, env_tag: str):
-        """Initialize an environment."""
+class EnvironmentFactory(ABC):
+    """
+    Factory class for creating environments.
+    """
+
+    def __init__(self, config: ConfigMng):
+        self.config = config
+
+    @abstractmethod
+    def create_environment(
+        self, env_type: str, db_type: str, env_tag: str
+    ) -> Environment:
+        """
+        Create an environment.
+        """
         pass
 
-    def clone(self, src_env_tag: str, dst_env_tag: str):
+
+class EnvironmentMng:
+
+    def __init__(self, configMng: ConfigMng, envFactory: EnvironmentFactory):
+        self.configMng = configMng
+        self.envFactory = envFactory
+
+    def init_env(self, env_type: str, db_type: str, env_tag: str):
+        """Initialize an environment."""
+        env = self.envFactory.create_environment(env_type, db_type, env_tag)
+        self.configMng.add_environment(env.to_config())
+        env.realize()
+        pass
+
+    def clone_env(self, src_env_tag: str, dst_env_tag: str):
         """Clone an environment."""
         pass
 
-    def checkout(self, env_tag: str):
+    def checkout_env(self, env_tag: str):
         """Checkout an environment."""
         pass
 
-    def set_all_non_active(self):
+    def set_all_envs_non_active(self):
         """Set all environments as non-active."""
         pass
 
-    def list(self):
+    def list_envs(self):
         """List all available environments."""
         pass
 
-    def start(self):
+    def start_env(self):
         """Start an environment."""
         pass
 
-    def halt(self):
+    def halt_env(self):
         """Halt an environment."""
         pass
 
-    def reload(self):
+    def reload_env(self):
         """Reload an environment."""
         pass
 
-    def status(self):
+    def status_env(self):
         """Get environment status."""
         pass

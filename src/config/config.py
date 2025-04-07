@@ -30,8 +30,8 @@ class UpstreamCfg:
     Represents an upstream service configuration.
     """
 
-    tag: str
     type: str
+    tag: str
     enabled: bool
     properties: Optional[dict[str, str]] = field(default_factory=dict)
 
@@ -76,6 +76,7 @@ class EnvironmentCfg:
     Represents an environment configuration.
     """
 
+    type: str
     tag: str
     services: Optional[List[ServiceCfg]]
     archived: bool
@@ -152,8 +153,8 @@ def parse_config(json_str: str) -> Config:
 
     def parse_upstream(item: Any) -> UpstreamCfg:
         return UpstreamCfg(
-            tag=item["tag"],
             type=item["type"],
+            tag=item["tag"],
             properties=item.get("properties", {}),
             enabled=item["enabled"],
         )
@@ -189,6 +190,7 @@ def parse_config(json_str: str) -> Config:
 
     def parse_environment(item: Any) -> EnvironmentCfg:
         return EnvironmentCfg(
+            type=item["type"],
             tag=item["tag"],
             services=[
                 parse_service(service) for service in item.get("services", [])
@@ -259,6 +261,7 @@ class ConfigMng:
 
     file_values_path: str
     original_placeholders: Dict[str, str] = {}
+    config: Config
 
     def __init__(self, file_values_path: str):
         """
@@ -388,6 +391,12 @@ class ConfigMng:
 
         return parse_config(json.dumps(substituted_config))
 
+    def load(self):
+        """
+        Loads the configuration and stores it in the `config` attribute.
+        """
+        self.config = self.load_config()
+
     def store_config(self, config: Config):
         """
         Stores the modified configuration while preserving placeholders.
@@ -430,3 +439,23 @@ class ConfigMng:
 
         with open(self.constants.SHPD_CONFIG_FILE, "w", encoding="utf-8") as f:
             json.dump(processed_config, f, indent=2)
+
+    def add_environment(self, newEnv: EnvironmentCfg):
+        """
+        Adds a new environment to the configuration.
+
+        :param newEnv: The new environment to be added.
+        """
+        self.config.envs.append(newEnv)
+        self.store_config(self.config)
+
+    def remove_environment(self, envTag: str):
+        """
+        Removes an environment from the configuration.
+
+        :param envTag: The tag of the environment to be removed.
+        """
+        self.config.envs = [
+            env for env in self.config.envs if env.tag != envTag
+        ]
+        self.store_config(self.config)

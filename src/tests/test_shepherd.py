@@ -15,6 +15,7 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+from __future__ import annotations
 
 import os
 from pathlib import Path
@@ -74,7 +75,7 @@ values = """
   cert_email=lf@sslip.io
   cert_subject_alternative_names=
 
-  shpd_dir=~/.shpd
+  shpd_dir=~/shpd
 
   # Database Default Configuration
   db_sys_usr=sys
@@ -95,7 +96,7 @@ def temp_home(tmp_path: Path, mocker: MockerFixture) -> Path:
 
     mocker.patch(
         "os.path.expanduser",
-        side_effect=[temp_home / ".shpd.conf", temp_home / ".shpd"],
+        side_effect=[temp_home / ".shpd.conf", temp_home / "shpd"],
     )
 
     return temp_home
@@ -368,172 +369,219 @@ def test_cli_flags_checkout(
     mock_init.assert_called_with(flags)
 
 
-def test_db_start(temp_home: Path, runner: CliRunner, mocker: MockerFixture):
-    mock_start = mocker.patch.object(DatabaseMng, "start")
-    result = runner.invoke(cli, ["db", "start"])
-    assert result.exit_code == 0
-    mock_start.assert_called_once()
+# service tests
 
 
-def test_db_build(temp_home: Path, runner: CliRunner, mocker: MockerFixture):
-    mock_build = mocker.patch.object(DatabaseMng, "build_image")
-    result = runner.invoke(cli, ["db", "build"])
-    assert result.exit_code == 0
-    mock_build.assert_called_once()
-
-
-def test_db_bootstrap(
+def test_cli_srv_build(
     temp_home: Path, runner: CliRunner, mocker: MockerFixture
 ):
-    mock_bootstrap = mocker.patch.object(DatabaseMng, "bootstrap")
-    result = runner.invoke(cli, ["db", "bootstrap"])
-    assert result.exit_code == 0
-    mock_bootstrap.assert_called_once()
-
-
-def test_db_halt(temp_home: Path, runner: CliRunner, mocker: MockerFixture):
-    mock_halt = mocker.patch.object(DatabaseMng, "halt")
-    result = runner.invoke(cli, ["db", "halt"])
-    assert result.exit_code == 0
-    mock_halt.assert_called_once()
-
-
-def test_db_stdout(temp_home: Path, runner: CliRunner, mocker: MockerFixture):
-    mock_stdout = mocker.patch.object(DatabaseMng, "stdout")
-    result = runner.invoke(cli, ["db", "stdout"])
-    assert result.exit_code == 0
-    mock_stdout.assert_called_once()
-
-
-def test_db_shell(temp_home: Path, runner: CliRunner, mocker: MockerFixture):
-    mock_shell = mocker.patch.object(DatabaseMng, "shell")
-    result = runner.invoke(cli, ["db", "shell"])
-    assert result.exit_code == 0
-    mock_shell.assert_called_once()
-
-
-def test_db_sql_shell(
-    temp_home: Path, runner: CliRunner, mocker: MockerFixture
-):
-    mock_sql_shell = mocker.patch.object(DatabaseMng, "sql_shell")
-    result = runner.invoke(cli, ["db", "sql"])
-    assert result.exit_code == 0
-    mock_sql_shell.assert_called_once()
-
-
-def test_env_init(temp_home: Path, runner: CliRunner, mocker: MockerFixture):
-    mock_init = mocker.patch.object(EnvironmentMng, "init")
-    result = runner.invoke(cli, ["env", "init", "db_type", "env_tag"])
-    assert result.exit_code == 0
-    mock_init.assert_called_once_with("db_type", "env_tag")
-
-
-def test_env_clone(temp_home: Path, runner: CliRunner, mocker: MockerFixture):
-    mock_clone = mocker.patch.object(EnvironmentMng, "clone")
-    result = runner.invoke(cli, ["env", "clone", "src_env_tag", "dst_env_tag"])
-    assert result.exit_code == 0
-    mock_clone.assert_called_once_with("src_env_tag", "dst_env_tag")
-
-
-def test_env_checkout(
-    temp_home: Path, runner: CliRunner, mocker: MockerFixture
-):
-    mock_checkout = mocker.patch.object(EnvironmentMng, "checkout")
-    result = runner.invoke(cli, ["env", "checkout", "env_tag"])
-    assert result.exit_code == 0
-    mock_checkout.assert_called_once_with("env_tag")
-
-
-def test_env_set_noactive(
-    temp_home: Path, runner: CliRunner, mocker: MockerFixture
-):
-    mock_noactive = mocker.patch.object(EnvironmentMng, "set_all_non_active")
-    result = runner.invoke(cli, ["env", "noactive"])
-    assert result.exit_code == 0
-    mock_noactive.assert_called_once()
-
-
-def test_env_list(temp_home: Path, runner: CliRunner, mocker: MockerFixture):
-    mock_list = mocker.patch.object(EnvironmentMng, "list")
-    result = runner.invoke(cli, ["env", "list"])
-    assert result.exit_code == 0
-    mock_list.assert_called_once()
-
-
-def test_env_start(temp_home: Path, runner: CliRunner, mocker: MockerFixture):
-    mock_start = mocker.patch.object(EnvironmentMng, "start")
-    result = runner.invoke(cli, ["env", "start"])
-    assert result.exit_code == 0
-    mock_start.assert_called_once()
-
-
-def test_env_halt(temp_home: Path, runner: CliRunner, mocker: MockerFixture):
-    mock_halt = mocker.patch.object(EnvironmentMng, "halt")
-    result = runner.invoke(cli, ["env", "halt"])
-    assert result.exit_code == 0
-    mock_halt.assert_called_once()
-
-
-def test_env_reload(temp_home: Path, runner: CliRunner, mocker: MockerFixture):
-    mock_reload = mocker.patch.object(EnvironmentMng, "reload")
-    result = runner.invoke(cli, ["env", "reload"])
-    assert result.exit_code == 0
-    mock_reload.assert_called_once()
-
-
-def test_env_status(temp_home: Path, runner: CliRunner, mocker: MockerFixture):
-    mock_status = mocker.patch.object(EnvironmentMng, "status")
-    result = runner.invoke(cli, ["env", "status"])
-    assert result.exit_code == 0
-    mock_status.assert_called_once()
-
-
-def test_srv_build(temp_home: Path, runner: CliRunner, mocker: MockerFixture):
-    mock_build = mocker.patch.object(ServiceMng, "build_image")
+    mock_build = mocker.patch.object(ServiceMng, "build_image_svc")
     result = runner.invoke(cli, ["svc", "build", "service_type"])
     assert result.exit_code == 0
     mock_build.assert_called_once_with("service_type")
 
 
-def test_srv_bootstrap(
+def test_cli_srv_bootstrap(
     temp_home: Path, runner: CliRunner, mocker: MockerFixture
 ):
-    mock_bootstrap = mocker.patch.object(ServiceMng, "bootstrap")
+    mock_bootstrap = mocker.patch.object(ServiceMng, "bootstrap_svc")
     result = runner.invoke(cli, ["svc", "bootstrap", "service_type"])
     assert result.exit_code == 0
     mock_bootstrap.assert_called_once_with("service_type")
 
 
-def test_srv_start(temp_home: Path, runner: CliRunner, mocker: MockerFixture):
-    mock_start = mocker.patch.object(ServiceMng, "start")
+def test_cli_srv_start(
+    temp_home: Path, runner: CliRunner, mocker: MockerFixture
+):
+    mock_start = mocker.patch.object(ServiceMng, "start_svc")
     result = runner.invoke(cli, ["svc", "start", "service_type"])
     assert result.exit_code == 0
     mock_start.assert_called_once_with("service_type")
 
 
-def test_srv_halt(temp_home: Path, runner: CliRunner, mocker: MockerFixture):
-    mock_halt = mocker.patch.object(ServiceMng, "halt")
+def test_cli_srv_halt(
+    temp_home: Path, runner: CliRunner, mocker: MockerFixture
+):
+    mock_halt = mocker.patch.object(ServiceMng, "halt_svc")
     result = runner.invoke(cli, ["svc", "halt", "service_type"])
     assert result.exit_code == 0
     mock_halt.assert_called_once_with("service_type")
 
 
-def test_srv_reload(temp_home: Path, runner: CliRunner, mocker: MockerFixture):
-    mock_reload = mocker.patch.object(ServiceMng, "reload")
+def test_cli_srv_reload(
+    temp_home: Path, runner: CliRunner, mocker: MockerFixture
+):
+    mock_reload = mocker.patch.object(ServiceMng, "reload_svc")
     result = runner.invoke(cli, ["svc", "reload", "service_type"])
     assert result.exit_code == 0
     mock_reload.assert_called_once_with("service_type")
 
 
-def test_srv_stdout(temp_home: Path, runner: CliRunner, mocker: MockerFixture):
-    mock_stdout = mocker.patch.object(ServiceMng, "stdout")
+def test_cli_srv_stdout(
+    temp_home: Path, runner: CliRunner, mocker: MockerFixture
+):
+    mock_stdout = mocker.patch.object(ServiceMng, "stdout_svc")
     result = runner.invoke(cli, ["svc", "stdout", "service_id"])
     assert result.exit_code == 0
     mock_stdout.assert_called_once_with("service_id")
 
 
-def test_srv_shell(temp_home: Path, runner: CliRunner, mocker: MockerFixture):
-    mock_shell = mocker.patch.object(ServiceMng, "shell")
+def test_cli_srv_shell(
+    temp_home: Path, runner: CliRunner, mocker: MockerFixture
+):
+    mock_shell = mocker.patch.object(ServiceMng, "shell_svc")
     result = runner.invoke(cli, ["svc", "shell", "service_id"])
     assert result.exit_code == 0
     mock_shell.assert_called_once_with("service_id")
+
+
+# database service tests
+
+
+def test_cli_db_start(
+    temp_home: Path, runner: CliRunner, mocker: MockerFixture
+):
+    mock_start = mocker.patch.object(DatabaseMng, "start_svc")
+    result = runner.invoke(cli, ["db", "start"])
+    assert result.exit_code == 0
+    mock_start.assert_called_once()
+
+
+def test_cli_db_build(
+    temp_home: Path, runner: CliRunner, mocker: MockerFixture
+):
+    mock_build = mocker.patch.object(DatabaseMng, "build_image_svc")
+    result = runner.invoke(cli, ["db", "build"])
+    assert result.exit_code == 0
+    mock_build.assert_called_once()
+
+
+def test_cli_db_bootstrap(
+    temp_home: Path, runner: CliRunner, mocker: MockerFixture
+):
+    mock_bootstrap = mocker.patch.object(DatabaseMng, "bootstrap_svc")
+    result = runner.invoke(cli, ["db", "bootstrap"])
+    assert result.exit_code == 0
+    mock_bootstrap.assert_called_once()
+
+
+def test_cli_db_halt(temp_home: Path, runner: CliRunner, mocker: MockerFixture):
+    mock_halt = mocker.patch.object(DatabaseMng, "halt_svc")
+    result = runner.invoke(cli, ["db", "halt"])
+    assert result.exit_code == 0
+    mock_halt.assert_called_once()
+
+
+def test_cli_db_stdout(
+    temp_home: Path, runner: CliRunner, mocker: MockerFixture
+):
+    mock_stdout = mocker.patch.object(DatabaseMng, "stdout_svc")
+    result = runner.invoke(cli, ["db", "stdout"])
+    assert result.exit_code == 0
+    mock_stdout.assert_called_once()
+
+
+def test_cli_db_shell(
+    temp_home: Path, runner: CliRunner, mocker: MockerFixture
+):
+    mock_shell = mocker.patch.object(DatabaseMng, "shell_svc")
+    result = runner.invoke(cli, ["db", "shell"])
+    assert result.exit_code == 0
+    mock_shell.assert_called_once()
+
+
+def test_cli_db_sql_shell(
+    temp_home: Path, runner: CliRunner, mocker: MockerFixture
+):
+    mock_sql_shell = mocker.patch.object(DatabaseMng, "sql_shell_svc")
+    result = runner.invoke(cli, ["db", "sql-shell"])
+    assert result.exit_code == 0
+    mock_sql_shell.assert_called_once()
+
+
+# environment tests
+
+
+def test_cli_env_init(
+    temp_home: Path, runner: CliRunner, mocker: MockerFixture
+):
+    mock_init = mocker.patch.object(EnvironmentMng, "init_env")
+    result = runner.invoke(
+        cli, ["env", "init", "env_type", "db_type", "env_tag"]
+    )
+    assert result.exit_code == 0
+    mock_init.assert_called_once_with("env_type", "db_type", "env_tag")
+
+
+def test_cli_env_clone(
+    temp_home: Path, runner: CliRunner, mocker: MockerFixture
+):
+    mock_clone = mocker.patch.object(EnvironmentMng, "clone_env")
+    result = runner.invoke(cli, ["env", "clone", "src_env_tag", "dst_env_tag"])
+    assert result.exit_code == 0
+    mock_clone.assert_called_once_with("src_env_tag", "dst_env_tag")
+
+
+def test_cli_env_checkout(
+    temp_home: Path, runner: CliRunner, mocker: MockerFixture
+):
+    mock_checkout = mocker.patch.object(EnvironmentMng, "checkout_env")
+    result = runner.invoke(cli, ["env", "checkout", "env_tag"])
+    assert result.exit_code == 0
+    mock_checkout.assert_called_once_with("env_tag")
+
+
+def test_cli_env_set_noactive(
+    temp_home: Path, runner: CliRunner, mocker: MockerFixture
+):
+    mock_noactive = mocker.patch.object(
+        EnvironmentMng, "set_all_envs_non_active"
+    )
+    result = runner.invoke(cli, ["env", "noactive"])
+    assert result.exit_code == 0
+    mock_noactive.assert_called_once()
+
+
+def test_cli_env_list(
+    temp_home: Path, runner: CliRunner, mocker: MockerFixture
+):
+    mock_list = mocker.patch.object(EnvironmentMng, "list_envs")
+    result = runner.invoke(cli, ["env", "list"])
+    assert result.exit_code == 0
+    mock_list.assert_called_once()
+
+
+def test_cli_env_start(
+    temp_home: Path, runner: CliRunner, mocker: MockerFixture
+):
+    mock_start = mocker.patch.object(EnvironmentMng, "start_env")
+    result = runner.invoke(cli, ["env", "start"])
+    assert result.exit_code == 0
+    mock_start.assert_called_once()
+
+
+def test_cli_env_halt(
+    temp_home: Path, runner: CliRunner, mocker: MockerFixture
+):
+    mock_halt = mocker.patch.object(EnvironmentMng, "halt_env")
+    result = runner.invoke(cli, ["env", "halt"])
+    assert result.exit_code == 0
+    mock_halt.assert_called_once()
+
+
+def test_cli_env_reload(
+    temp_home: Path, runner: CliRunner, mocker: MockerFixture
+):
+    mock_reload = mocker.patch.object(EnvironmentMng, "reload_env")
+    result = runner.invoke(cli, ["env", "reload"])
+    assert result.exit_code == 0
+    mock_reload.assert_called_once()
+
+
+def test_cli_env_status(
+    temp_home: Path, runner: CliRunner, mocker: MockerFixture
+):
+    mock_status = mocker.patch.object(EnvironmentMng, "status_env")
+    result = runner.invoke(cli, ["env", "status"])
+    assert result.exit_code == 0
+    mock_status.assert_called_once()
