@@ -88,6 +88,11 @@ class Environment(ABC):
             os.path.join(self.config.constants.SHPD_ENVS_DIR, self.tag),
             self.tag,
         )
+        self.sync_config()
+
+    def sync_config(self):
+        """Sync the environment configuration."""
+        self.config.add_or_set_environment(self.tag, self.to_config())
         pass
 
     def get_tag(self) -> str:
@@ -149,10 +154,13 @@ class EnvironmentMng:
 
     def init_env(self, env_type: str, db_type: str, env_tag: str):
         """Initialize an environment."""
+        if self.configMng.get_environment(env_tag):
+            Util.print_error_and_die(
+                f"Environment with tag '{env_tag}' already exists."
+            )
         env = self.envFactory.create_environment(env_type, db_type, env_tag)
-        self.configMng.add_environment(env.to_config())
         env.realize()
-        pass
+        Util.print(f"{env_tag}")
 
     def clone_env(self, src_env_tag: str, dst_env_tag: str):
         """Clone an environment."""
@@ -160,15 +168,33 @@ class EnvironmentMng:
 
     def checkout_env(self, env_tag: str):
         """Checkout an environment."""
-        pass
+        envCfg = self.configMng.get_environment(env_tag)
+        if not envCfg:
+            Util.print_error_and_die(
+                f"Environment with tag '{env_tag}' does not exist."
+            )
+        else:
+            envCfg.active = True
+            self.configMng.set_environment(env_tag, envCfg)
+            Util.print(f"Switched to: {env_tag}")
 
     def set_all_envs_non_active(self):
         """Set all environments as non-active."""
-        pass
+        envs = self.configMng.get_environments()
+        for env in envs:
+            env.active = False
+        self.configMng.store()
+        Util.print("All environments set to non-active.")
 
     def list_envs(self):
         """List all available environments."""
-        pass
+        envs = self.configMng.get_environments()
+        if not envs:
+            Util.print("No environments available.")
+            return
+        Util.print("Available environments:")
+        for env in envs:
+            Util.print(f" - {env.tag} ({env.type})")
 
     def start_env(self):
         """Start an environment."""
