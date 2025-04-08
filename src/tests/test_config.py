@@ -23,6 +23,7 @@ import pytest
 from pytest_mock import MockerFixture
 
 from config import Config, ConfigMng
+from util import Constants
 
 config_json = """{
   "shpd_registry": {
@@ -96,6 +97,7 @@ config_json = """{
   ],
   "envs": [
     {
+      "type": "docker-compose",
       "tag": "sample-1",
       "services": [
         {
@@ -115,8 +117,8 @@ config_json = """{
           "subject_alternative_name": null,
           "upstreams": [
             {
-              "tag": "upstream-1",
               "type": "postgres",
+              "tag": "upstream-1",
               "enabled": true,
               "properties": {
                 "user": "pg1up",
@@ -129,8 +131,8 @@ config_json = """{
               }
             },
             {
-              "tag": "upstream-2",
               "type": "postgres",
+              "tag": "upstream-2",
               "enabled": false,
               "properties": {
                 "user": "pg2up",
@@ -310,6 +312,7 @@ def test_load_config(mocker: MockerFixture):
     assert service_types[1].subject_alternative_name is None
 
     assert config.shpd_registry.ftp_server == "ftp.example.com"
+    assert config.envs[0].type == Constants.ENV_TYPE_DOCKER_COMPOSE
     assert config.envs[0].tag == "sample-1"
     services = config.envs[0].services
     assert services and services[0].type == "postgres"

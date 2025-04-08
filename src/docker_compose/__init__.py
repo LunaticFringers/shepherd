@@ -16,6 +16,6 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-from .environment import Environment, EnvironmentFactory, EnvironmentMng
+from .docker_compose_env import DockerComposeEnv
 
-__all__ = ["EnvironmentMng", "Environment", "EnvironmentFactory"]
+__all__ = ["DockerComposeEnv"]

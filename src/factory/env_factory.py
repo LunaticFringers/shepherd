@@ -16,6 +16,28 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-from .environment import Environment, EnvironmentFactory, EnvironmentMng
+from typing import override
 
-__all__ = ["EnvironmentMng", "Environment", "EnvironmentFactory"]
+from config import ConfigMng
+from docker_compose import DockerComposeEnv
+from environment import Environment, EnvironmentFactory
+from util import Constants
+
+
+class ShpdEnvironmentFactory(EnvironmentFactory):
+
+    def __init__(self, config: ConfigMng):
+        self.config = config
+
+    @override
+    def create_environment(
+        self, env_type: str, db_type: str, env_tag: str
+    ) -> Environment:
+        """
+        Create an environment.
+        """
+        match env_type:
+            case Constants.ENV_TYPE_DOCKER_COMPOSE:
+                return DockerComposeEnv(self.config, db_type, env_tag)
+            case _:
+                raise ValueError(f"Unknown environment type: {env_type}")

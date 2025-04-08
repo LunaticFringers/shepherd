@@ -40,10 +40,12 @@ class Util:
 
     @staticmethod
     def print_error_and_die(message: str):
-        Util.console.print(
-            f"[bold red]ERROR:[/bold red] {message}", style="bold red"
-        )
+        Util.console.print(f"[bold red]ERROR[/bold red]: {message}")
         sys.exit(1)
+
+    @staticmethod
+    def print(message: str):
+        Util.console.print(f"{message}", highlight=False)
 
     @staticmethod
     def ensure_dirs(constants: Constants):
