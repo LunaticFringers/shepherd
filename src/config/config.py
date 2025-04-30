@@ -440,6 +440,32 @@ class ConfigMng:
         with open(self.constants.SHPD_CONFIG_FILE, "w", encoding="utf-8") as f:
             json.dump(processed_config, f, indent=2)
 
+    def store(self):
+        """
+        Stores the current configuration by calling `store_config`.
+        """
+        self.store_config(self.config)
+
+    def get_environment(self, envTag: str) -> Optional[EnvironmentCfg]:
+        """
+        Retrieves an environment configuration by its tag.
+
+        :param envTag: The tag of the environment to retrieve.
+        :return: The environment configuration if found, else None.
+        """
+        for env in self.config.envs:
+            if env.tag == envTag:
+                return env
+        return None
+
+    def get_environments(self) -> List[EnvironmentCfg]:
+        """
+        Retrieves all environments.
+
+        :return: A list of all environments.
+        """
+        return self.config.envs
+
     def add_environment(self, newEnv: EnvironmentCfg):
         """
         Adds a new environment to the configuration.
@@ -448,6 +474,36 @@ class ConfigMng:
         """
         self.config.envs.append(newEnv)
         self.store_config(self.config)
+
+    def set_environment(
+        self, envTag: str, newEnv: EnvironmentCfg
+    ) -> Optional[EnvironmentCfg]:
+        """
+        Sets a new environment configuration.
+
+        :param envTag: The tag of the environment to be replaced.
+        :param newEnv: The new environment configuration.
+        :return: The replaced environment configuration if found, else None.
+        """
+        for i, env in enumerate(self.config.envs):
+            if env.tag == envTag:
+                self.config.envs[i] = newEnv
+                self.store_config(self.config)
+                return env
+        return None
+
+    def add_or_set_environment(self, envTag: str, newEnv: EnvironmentCfg):
+        """
+        Adds or replaces an environment configuration.
+
+        :param envTag: The tag of the environment to be added/replaced.
+        :param newEnv: The new environment configuration.
+        """
+        for i, env in enumerate(self.config.envs):
+            if env.tag == envTag:
+                self.config.envs[i] = newEnv
+                self.store_config(self.config)
+        self.config.envs.append(newEnv)
 
     def remove_environment(self, envTag: str):
         """
