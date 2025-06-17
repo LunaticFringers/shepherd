@@ -387,7 +387,7 @@ class ConfigMng:
     """
 
     file_values_path: str
-    original_placeholders: Dict[str, str] = {}
+    original_placeholders: Dict[str, str]
     config: Config
 
     def __init__(self, file_values_path: str):
@@ -403,6 +403,7 @@ class ConfigMng:
             SHPD_CONFIG_VALUES_FILE=self.file_values_path,
             SHPD_DIR=os.path.expanduser(self.values["shpd_dir"]),
         )
+        self.original_placeholders = {}
 
     def load_user_values(self) -> Dict[str, str]:
         """
@@ -443,6 +444,20 @@ class ConfigMng:
             Util.print_error_and_die(f"Error reading configuration file: {e}")
 
         return user_values
+
+    def get_list_item_key(self, item: Any, index: int) -> str:
+        """
+        Determines a unique identifier for list elements using:
+        1. item["tag"] if available
+        2. item["type"] if available
+        3. fallback to index
+        """
+        if isinstance(item, dict):
+            if "tag" in item:
+                return f"tag={item['tag']}"
+            elif "type" in item:
+                return f"type={item['type']}"
+        return str(index)
 
     def substitute_placeholders(
         self, config_data: Dict[Any, Any], values: Dict[str, str]
@@ -485,11 +500,14 @@ class ConfigMng:
                     k: replace(v, f"{path}.{k}" if path else k)
                     for k, v in valDict.items()
                 }
+
             elif isinstance(value, list):
                 valList: List[Any] = value
                 return [
-                    replace(v, f"{path}[{i}]") for i, v in enumerate(valList)
+                    replace(v, f"{path}[{self.get_list_item_key(v, i)}]")
+                    for i, v in enumerate(valList)
                 ]
+
             return value
 
         return replace(config_data)
@@ -531,7 +549,7 @@ class ConfigMng:
         This function:
         - Converts the `Config` object into a dictionary.
         - Restores placeholders for known keys (those tracked in
-        `original_placeholders`).
+          `original_placeholders`).
         - Writes the final configuration back to a JSON file.
 
         :param config: The `Config` object to be saved.
@@ -555,12 +573,18 @@ class ConfigMng:
                         else self.original_placeholders.get(full_key, v)
                     )
                 return new_dict
+
             elif isinstance(config, list):
                 configList: List[Any] = config
                 return [
-                    replace_keys_with_placeholders(item, f"{parent_key}[{i}]")
+                    replace_keys_with_placeholders(
+                        item,
+                        f"{parent_key}[{self.get_list_item_key(item, i)}]",
+                    )
                     for i, item in enumerate(configList)
                 ]
+
+            return config
 
         processed_config = replace_keys_with_placeholders(asdict(config))
 

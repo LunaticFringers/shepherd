@@ -102,6 +102,7 @@ def temp_home(tmp_path: Path, mocker: MockerFixture) -> Path:
     return temp_home
 
 
+@pytest.mark.shpd
 def test_shepherdmng_creates_dirs(temp_home: Path):
     """Test that ShepherdMng creates the required directories."""
 
@@ -131,6 +132,7 @@ def runner() -> CliRunner:
     return CliRunner()
 
 
+@pytest.mark.shpd
 def test_cli_flags_no_flags(
     temp_home: Path, runner: CliRunner, mocker: MockerFixture
 ):
@@ -153,6 +155,7 @@ def test_cli_flags_no_flags(
     )
 
 
+@pytest.mark.shpd
 def test_cli_flags_verbose(
     temp_home: Path, runner: CliRunner, mocker: MockerFixture
 ):
@@ -180,6 +183,7 @@ def test_cli_flags_verbose(
     mock_init.assert_called_with(flags)
 
 
+@pytest.mark.shpd
 def test_cli_flags_yes(
     temp_home: Path, runner: CliRunner, mocker: MockerFixture
 ):
@@ -207,6 +211,7 @@ def test_cli_flags_yes(
     mock_init.assert_called_with(flags)
 
 
+@pytest.mark.shpd
 def test_cli_flags_all(
     temp_home: Path, runner: CliRunner, mocker: MockerFixture
 ):
@@ -234,6 +239,7 @@ def test_cli_flags_all(
     mock_init.assert_called_with(flags)
 
 
+@pytest.mark.shpd
 def test_cli_flags_follow(
     temp_home: Path, runner: CliRunner, mocker: MockerFixture
 ):
@@ -261,6 +267,7 @@ def test_cli_flags_follow(
     mock_init.assert_called_with(flags)
 
 
+@pytest.mark.shpd
 def test_cli_flags_porcelain(
     temp_home: Path, runner: CliRunner, mocker: MockerFixture
 ):
@@ -288,6 +295,7 @@ def test_cli_flags_porcelain(
     mock_init.assert_called_with(flags)
 
 
+@pytest.mark.shpd
 def test_cli_flags_keep(
     temp_home: Path, runner: CliRunner, mocker: MockerFixture
 ):
@@ -315,6 +323,7 @@ def test_cli_flags_keep(
     mock_init.assert_called_with(flags)
 
 
+@pytest.mark.shpd
 def test_cli_flags_replace(
     temp_home: Path, runner: CliRunner, mocker: MockerFixture
 ):
@@ -342,6 +351,7 @@ def test_cli_flags_replace(
     mock_init.assert_called_with(flags)
 
 
+@pytest.mark.shpd
 def test_cli_flags_checkout(
     temp_home: Path, runner: CliRunner, mocker: MockerFixture
 ):
@@ -372,6 +382,7 @@ def test_cli_flags_checkout(
 # service tests
 
 
+@pytest.mark.shpd
 def test_cli_srv_build(
     temp_home: Path, runner: CliRunner, mocker: MockerFixture
 ):
@@ -381,6 +392,7 @@ def test_cli_srv_build(
     mock_build.assert_called_once_with("service_type")
 
 
+@pytest.mark.shpd
 def test_cli_srv_bootstrap(
     temp_home: Path, runner: CliRunner, mocker: MockerFixture
 ):
@@ -390,6 +402,7 @@ def test_cli_srv_bootstrap(
     mock_bootstrap.assert_called_once_with("service_type")
 
 
+@pytest.mark.shpd
 def test_cli_srv_start(
     temp_home: Path, runner: CliRunner, mocker: MockerFixture
 ):
@@ -399,6 +412,7 @@ def test_cli_srv_start(
     mock_start.assert_called_once_with("service_type")
 
 
+@pytest.mark.shpd
 def test_cli_srv_halt(
     temp_home: Path, runner: CliRunner, mocker: MockerFixture
 ):
@@ -408,6 +422,7 @@ def test_cli_srv_halt(
     mock_halt.assert_called_once_with("service_type")
 
 
+@pytest.mark.shpd
 def test_cli_srv_reload(
     temp_home: Path, runner: CliRunner, mocker: MockerFixture
 ):
@@ -417,6 +432,7 @@ def test_cli_srv_reload(
     mock_reload.assert_called_once_with("service_type")
 
 
+@pytest.mark.shpd
 def test_cli_srv_stdout(
     temp_home: Path, runner: CliRunner, mocker: MockerFixture
 ):
@@ -426,6 +442,7 @@ def test_cli_srv_stdout(
     mock_stdout.assert_called_once_with("service_id")
 
 
+@pytest.mark.shpd
 def test_cli_srv_shell(
     temp_home: Path, runner: CliRunner, mocker: MockerFixture
 ):
@@ -438,6 +455,7 @@ def test_cli_srv_shell(
 # database service tests
 
 
+@pytest.mark.shpd
 def test_cli_db_start(
     temp_home: Path, runner: CliRunner, mocker: MockerFixture
 ):
@@ -447,6 +465,7 @@ def test_cli_db_start(
     mock_start.assert_called_once()
 
 
+@pytest.mark.shpd
 def test_cli_db_build(
     temp_home: Path, runner: CliRunner, mocker: MockerFixture
 ):
@@ -456,6 +475,7 @@ def test_cli_db_build(
     mock_build.assert_called_once()
 
 
+@pytest.mark.shpd
 def test_cli_db_bootstrap(
     temp_home: Path, runner: CliRunner, mocker: MockerFixture
 ):
@@ -465,6 +485,7 @@ def test_cli_db_bootstrap(
     mock_bootstrap.assert_called_once()
 
 
+@pytest.mark.shpd
 def test_cli_db_halt(temp_home: Path, runner: CliRunner, mocker: MockerFixture):
     mock_halt = mocker.patch.object(DatabaseMng, "halt_svc")
     result = runner.invoke(cli, ["db", "halt"])
@@ -472,6 +493,7 @@ def test_cli_db_halt(temp_home: Path, runner: CliRunner, mocker: MockerFixture):
     mock_halt.assert_called_once()
 
 
+@pytest.mark.shpd
 def test_cli_db_stdout(
     temp_home: Path, runner: CliRunner, mocker: MockerFixture
 ):
@@ -481,6 +503,7 @@ def test_cli_db_stdout(
     mock_stdout.assert_called_once()
 
 
+@pytest.mark.shpd
 def test_cli_db_shell(
     temp_home: Path, runner: CliRunner, mocker: MockerFixture
 ):
@@ -490,6 +513,7 @@ def test_cli_db_shell(
     mock_shell.assert_called_once()
 
 
+@pytest.mark.shpd
 def test_cli_db_sql_shell(
     temp_home: Path, runner: CliRunner, mocker: MockerFixture
 ):
@@ -502,6 +526,7 @@ def test_cli_db_sql_shell(
 # environment tests
 
 
+@pytest.mark.shpd
 def test_cli_env_init(
     temp_home: Path, runner: CliRunner, mocker: MockerFixture
 ):
@@ -511,6 +536,7 @@ def test_cli_env_init(
     mock_init.assert_called_once_with("env_type", "env_tag")
 
 
+@pytest.mark.shpd
 def test_cli_env_clone(
     temp_home: Path, runner: CliRunner, mocker: MockerFixture
 ):
@@ -520,6 +546,7 @@ def test_cli_env_clone(
     mock_clone.assert_called_once_with("src_env_tag", "dst_env_tag")
 
 
+@pytest.mark.shpd
 def test_cli_env_checkout(
     temp_home: Path, runner: CliRunner, mocker: MockerFixture
 ):
@@ -529,6 +556,7 @@ def test_cli_env_checkout(
     mock_checkout.assert_called_once_with("env_tag")
 
 
+@pytest.mark.shpd
 def test_cli_env_set_noactive(
     temp_home: Path, runner: CliRunner, mocker: MockerFixture
 ):
@@ -540,6 +568,7 @@ def test_cli_env_set_noactive(
     mock_noactive.assert_called_once()
 
 
+@pytest.mark.shpd
 def test_cli_env_list(
     temp_home: Path, runner: CliRunner, mocker: MockerFixture
 ):
@@ -549,6 +578,7 @@ def test_cli_env_list(
     mock_list.assert_called_once()
 
 
+@pytest.mark.shpd
 def test_cli_env_start(
     temp_home: Path, runner: CliRunner, mocker: MockerFixture
 ):
@@ -558,6 +588,7 @@ def test_cli_env_start(
     mock_start.assert_called_once()
 
 
+@pytest.mark.shpd
 def test_cli_env_halt(
     temp_home: Path, runner: CliRunner, mocker: MockerFixture
 ):
@@ -567,6 +598,7 @@ def test_cli_env_halt(
     mock_halt.assert_called_once()
 
 
+@pytest.mark.shpd
 def test_cli_env_reload(
     temp_home: Path, runner: CliRunner, mocker: MockerFixture
 ):
@@ -576,6 +608,7 @@ def test_cli_env_reload(
     mock_reload.assert_called_once()
 
 
+@pytest.mark.shpd
 def test_cli_env_status(
     temp_home: Path, runner: CliRunner, mocker: MockerFixture
 ):

@@ -244,11 +244,7 @@ def test_svc_add_one_default(
     assert len(env.services) == 1, "There should be exactly one service"
     assert env.services[0].tag == "svc-1", "Service tag should be 'svc-1'"
     assert env.services[0].type == "docker", "Service type should be 'docker'"
-
-    # this test fails with the image set to None.
-    # Root cause is that we need to fix the key-value bijectivity
-    # in ConfigMng.replace_keys_with_placeholders.
-    # assert env.services[0].image == "", "Service image should be ''"
+    assert env.services[0].image == "", "Service image should be ''"
 
     assert env.services[0].ingress is False, "Service ingress should be False"
     assert env.services[0].envvars == {}, "Service envvars should be empty"
@@ -296,11 +292,7 @@ def test_svc_add_two_default(
     assert len(env.services) == 2, "There should be exactly two services"
     assert env.services[0].tag == "svc-1", "Service tag should be 'svc-1'"
     assert env.services[0].type == "docker", "Service type should be 'docker'"
-
-    # this test fails with the image set to None.
-    # Root cause is that we need to fix the key-value bijectivity
-    # in ConfigMng.replace_keys_with_placeholders.
-    # assert env.services[0].image == "", "Service image should be ''"
+    assert env.services[0].image == "", "Service image should be ''"
 
     assert env.services[0].ingress is False, "Service ingress should be False"
     assert env.services[0].envvars == {}, "Service envvars should be empty"
@@ -314,11 +306,7 @@ def test_svc_add_two_default(
 
     assert env.services[1].tag == "svc-2", "Service tag should be 'svc-2'"
     assert env.services[1].type == "docker", "Service type should be 'docker'"
-
-    # this test fails with the image set to None.
-    # Root cause is that we need to fix the key-value bijectivity
-    # in ConfigMng.replace_keys_with_placeholders.
-    # assert env.services[1].image == "", "Service image should be ''"
+    assert env.services[1].image == "", "Service image should be ''"
 
     assert env.services[1].ingress is False, "Service ingress should be False"
     assert env.services[1].envvars == {}, "Service envvars should be empty"
@@ -366,11 +354,7 @@ def test_svc_add_two_same_tag_default(
     assert len(env.services) == 1, "There should be exactly one service"
     assert env.services[0].tag == "svc-1", "Service tag should be 'svc-1'"
     assert env.services[0].type == "docker", "Service type should be 'docker'"
-
-    # this test fails with the image set to None.
-    # Root cause is that we need to fix the key-value bijectivity
-    # in ConfigMng.replace_keys_with_placeholders.
-    # assert env.services[0].image == "", "Service image should be ''"
+    assert env.services[0].image == "", "Service image should be ''"
 
     assert env.services[0].ingress is False, "Service ingress should be False"
     assert env.services[0].envvars == {}, "Service envvars should be empty"

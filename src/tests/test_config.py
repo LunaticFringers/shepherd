@@ -253,6 +253,7 @@ values = """
   """
 
 
+@pytest.mark.cfg
 def test_load_config(mocker: MockerFixture):
     """Test regular parsing"""
 
@@ -380,6 +381,7 @@ def test_load_config(mocker: MockerFixture):
     assert config.envs[0].active is False
 
 
+@pytest.mark.cfg
 def test_load_user_values_file_not_found(mocker: MockerFixture):
     """Test file_values_path does not exist"""
 
@@ -394,6 +396,7 @@ def test_load_user_values_file_not_found(mocker: MockerFixture):
         assert exc_info.value.code == 1
 
 
+@pytest.mark.cfg
 def test_load_invalid_user_values(mocker: MockerFixture):
     """Test invalid user values"""
 
@@ -411,6 +414,7 @@ def test_load_invalid_user_values(mocker: MockerFixture):
         assert exc_info.value.code == 1
 
 
+@pytest.mark.cfg
 def test_store_config_with_real_files():
     """Test storing config using real files in ./"""
 
