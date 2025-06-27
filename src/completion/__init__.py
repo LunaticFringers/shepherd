@@ -15,8 +15,6 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+from .completion import CompletionMng
 
-from factory.shpd_env_factory import ShpdEnvironmentFactory
-from factory.shpd_svc_factory import ShpdServiceFactory
-
-__all__ = ["ShpdEnvironmentFactory", "ShpdServiceFactory"]
+__all__ = ["CompletionMng"]

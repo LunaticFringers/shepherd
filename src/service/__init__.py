@@ -16,6 +16,6 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-from .service import Service, ServiceMng
+from .service import Service, ServiceFactory, ServiceMng
 
-__all__ = ["Service", "ServiceMng"]
+__all__ = ["Service", "ServiceMng", "ServiceFactory"]

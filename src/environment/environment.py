@@ -20,11 +20,11 @@ from __future__ import annotations
 
 import os
 from abc import ABC, abstractmethod
-from typing import Dict, List
+from typing import Dict, List, Optional
 
-from config import ConfigMng, EnvironmentCfg
-from service import Service
-from util import Util
+from config import ConfigMng, EnvironmentCfg, ServiceCfg
+from service import Service, ServiceFactory
+from util import Constants, Util
 
 
 class Environment(ABC):
@@ -35,13 +35,26 @@ class Environment(ABC):
     active: bool
     services: List[Service]
 
-    def __init__(self, configMng: ConfigMng, envCfg: EnvironmentCfg):
+    def __init__(
+        self,
+        configMng: ConfigMng,
+        svcFactory: ServiceFactory,
+        envCfg: EnvironmentCfg,
+    ):
         self.configMng = configMng
+        self.svcFactory = svcFactory
         self.type = envCfg.type
         self.tag = envCfg.tag
         self.archived = envCfg.archived
         self.active = envCfg.active
-        self.services = []
+        self.services = (
+            [
+                self.svcFactory.new_service_cfg(svcCfg)
+                for svcCfg in envCfg.services
+            ]
+            if envCfg.services
+            else []
+        )
 
     @abstractmethod
     def clone(self, dst_env_tag: str) -> Environment:
@@ -138,10 +151,12 @@ class Environment(ABC):
     def add_service(self, service: Service):
         """Add a service to the environment."""
         self.services.append(service)
+        self.sync_config()
 
     def remove_service(self, service: Service):
         """Remove a service from the environment."""
         self.services.remove(service)
+        self.sync_config()
 
     def get_services(self) -> List[Service]:
         """Return the list of services in the environment."""
@@ -159,14 +174,14 @@ class EnvironmentFactory(ABC):
     @abstractmethod
     def new_environment(self, env_type: str, env_tag: str) -> Environment:
         """
-        Create a new environment.
+        Create an environment.
         """
         pass
 
     @abstractmethod
-    def get_environment(self, envCfg: EnvironmentCfg) -> Environment:
+    def new_environment_cfg(self, envCfg: EnvironmentCfg) -> Environment:
         """
-        Get an environment.
+        Create an environment.
         """
         pass
 
@@ -178,10 +193,12 @@ class EnvironmentMng:
         cli_flags: Dict[str, bool],
         configMng: ConfigMng,
         envFactory: EnvironmentFactory,
+        svcFactory: ServiceFactory,
     ):
         self.cli_flags = cli_flags
         self.configMng = configMng
         self.envFactory = envFactory
+        self.svcFactory = svcFactory
 
     def init_env(self, env_type: str, env_tag: str):
         """Initialize an environment."""
@@ -201,7 +218,7 @@ class EnvironmentMng:
                 f"Environment with tag '{src_env_tag}' does not exist."
             )
         else:
-            env = self.envFactory.get_environment(envCfg)
+            env = self.envFactory.new_environment_cfg(envCfg)
             clonedEnv = env.clone(dst_env_tag)
             clonedEnv.realize_from(env)
             Util.print(f"Cloned to: {dst_env_tag}")
@@ -214,7 +231,7 @@ class EnvironmentMng:
                 f"Environment with tag '{src_env_tag}' does not exist."
             )
         else:
-            env = self.envFactory.get_environment(envCfg)
+            env = self.envFactory.new_environment_cfg(envCfg)
             env.move_to(dst_env_tag)
             Util.print(f"Renamed to: {dst_env_tag}")
 
@@ -246,7 +263,7 @@ class EnvironmentMng:
                     Util.console.print("Aborted.", style="yellow")
                     return
 
-            env = self.envFactory.get_environment(envCfg)
+            env = self.envFactory.new_environment_cfg(envCfg)
             env.delete()
             Util.print(f"Deleted: {env.tag}")
 
@@ -283,3 +300,52 @@ class EnvironmentMng:
     def status_env(self):
         """Get environment status."""
         pass
+
+    def add_service(
+        self, env_tag: Optional[str], svc_name: str, svc_template: Optional[str]
+    ):
+        """Add a service to an environment."""
+
+        if env_tag and env_tag.strip():
+            envCfg = self.configMng.get_environment(env_tag)
+            if not envCfg:
+                Util.print_error_and_die(
+                    f"Environment with tag '{env_tag}' does not exist."
+                )
+        else:
+            envCfg = self.configMng.get_active_environment()
+            if not envCfg:
+                Util.print_error_and_die("No active environment configured.")
+
+        if envCfg:
+            if envCfg.get_service(svc_name):
+                Util.print_error_and_die(
+                    f"""Service with name '{svc_name}' already
+                    exists in environment '{envCfg.tag}'."""
+                )
+            env = self.envFactory.new_environment_cfg(envCfg)
+        else:
+            env = self.envFactory.new_environment(
+                Constants.ENV_TYPE_DOCKER_COMPOSE, "-"
+            )
+
+        svc_type_cfg = self.configMng.get_service_type(
+            svc_template if svc_template else Constants.SVC_TYPE_DOCKER
+        )
+
+        if svc_type_cfg:
+            svcCfg = ServiceCfg.from_service_type(svc_type_cfg, svc_name)
+        else:
+            svcCfg = ServiceCfg.from_tag(
+                svc_template if svc_template else Constants.SVC_TYPE_DOCKER,
+                svc_name,
+            )
+
+        try:
+            service = self.svcFactory.new_service_cfg(svcCfg)
+            env.add_service(service)
+            Util.print(
+                f"Service '{service.tag}' added to environment '{env.tag}'."
+            )
+        except ValueError as e:
+            Util.print_error_and_die(f"Failed to create service: {e}")

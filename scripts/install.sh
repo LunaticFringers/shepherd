@@ -25,6 +25,7 @@ export BLUE='\033[0;36m'
 
 skip_ensure_deps=false
 PY_SRC_DIR="$(realpath "$(dirname "$0")/../src")"
+CURRENT_DIR="$(realpath "$(dirname "$0")")"
 
 INSTALL_SHEPCTL_DIR=$(realpath ${INSTALL_SHEPCTL_DIR:-"/opt/shepctl"})
 SYMLINK_DIR=${SYMLINK_DIR:-"/usr/local/bin"}
@@ -172,6 +173,7 @@ function uninstall(){
 
   rm -rf $INSTALL_SHEPCTL_DIR
   rm -rf $SYMLINK_DIR/shepctl
+  rm -rf /etc/bash_completion.d/shepctl_completion.sh
   echo "shepctl uninstalled"
 }
 
@@ -270,6 +272,17 @@ EOF
   echo "You can now run it with: shepctl"
 }
 
+install_completion() {
+  if [[ -d /etc/bash_completion.d ]]; then
+    echo "Installing shell completion script..."
+    cp "$CURRENT_DIR/shepctl_completion.sh" /etc/bash_completion.d/shepctl_completion.sh
+    chmod 755 /etc/bash_completion.d/shepctl_completion.sh
+    echo "Shell completion script installed."
+  else
+    echo "Bash completion directory not found. Please install manually."
+  fi
+}
+
 install() {
   if [[ "$skip_ensure_deps" != true ]]; then
     echo -e "${BLUE}Ensuring dependencies...${NC}"
@@ -297,6 +310,7 @@ install() {
       exit 1
       ;;
   esac
+  install_completion
 }
 
 ############

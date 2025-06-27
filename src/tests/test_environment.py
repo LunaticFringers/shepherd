@@ -99,17 +99,27 @@ def runner() -> CliRunner:
     return CliRunner()
 
 
-def test_env_init(temp_home: Path, runner: CliRunner, mocker: MockerFixture):
+def make_expanduser_side_effect(path: Path, calls: int):
+    """Generate a list of `os.path.expanduser` return
+    values alternating config and folder paths."""
+    return [
+        path / ".shpd.conf" if i % 2 == 0 else path / "shpd"
+        for i in range(calls * 2)
+    ]
 
-    mocker.patch(
-        "os.path.expanduser",
-        side_effect=[
-            temp_home / ".shpd.conf",
-            temp_home / "shpd",
-            temp_home / ".shpd.conf",
-            temp_home / "shpd",
-        ],
+
+@pytest.mark.env
+@pytest.mark.parametrize("expanduser_side_effects", [2])
+def test_env_init(
+    temp_home: Path,
+    runner: CliRunner,
+    mocker: MockerFixture,
+    expanduser_side_effects: int,
+):
+    side_effect = make_expanduser_side_effect(
+        temp_home, expanduser_side_effects
     )
+    mocker.patch("os.path.expanduser", side_effect=side_effect)
 
     result = runner.invoke(
         cli, ["env", "init", "docker-compose", "test-init-1"]
@@ -129,19 +139,18 @@ def test_env_init(temp_home: Path, runner: CliRunner, mocker: MockerFixture):
         ), f"Directory {directory} was not created."
 
 
-def test_env_clone(temp_home: Path, runner: CliRunner, mocker: MockerFixture):
-
-    mocker.patch(
-        "os.path.expanduser",
-        side_effect=[
-            temp_home / ".shpd.conf",
-            temp_home / "shpd",
-            temp_home / ".shpd.conf",
-            temp_home / "shpd",
-            temp_home / ".shpd.conf",
-            temp_home / "shpd",
-        ],
+@pytest.mark.env
+@pytest.mark.parametrize("expanduser_side_effects", [3])
+def test_env_clone(
+    temp_home: Path,
+    runner: CliRunner,
+    mocker: MockerFixture,
+    expanduser_side_effects: int,
+):
+    side_effect = make_expanduser_side_effect(
+        temp_home, expanduser_side_effects
     )
+    mocker.patch("os.path.expanduser", side_effect=side_effect)
 
     result = runner.invoke(
         cli, ["env", "init", "docker-compose", "test-clone-1"]
@@ -168,19 +177,18 @@ def test_env_clone(temp_home: Path, runner: CliRunner, mocker: MockerFixture):
         ), f"Directory {directory} was not created."
 
 
-def test_env_rename(temp_home: Path, runner: CliRunner, mocker: MockerFixture):
-
-    mocker.patch(
-        "os.path.expanduser",
-        side_effect=[
-            temp_home / ".shpd.conf",
-            temp_home / "shpd",
-            temp_home / ".shpd.conf",
-            temp_home / "shpd",
-            temp_home / ".shpd.conf",
-            temp_home / "shpd",
-        ],
+@pytest.mark.env
+@pytest.mark.parametrize("expanduser_side_effects", [3])
+def test_env_rename(
+    temp_home: Path,
+    runner: CliRunner,
+    mocker: MockerFixture,
+    expanduser_side_effects: int,
+):
+    side_effect = make_expanduser_side_effect(
+        temp_home, expanduser_side_effects
     )
+    mocker.patch("os.path.expanduser", side_effect=side_effect)
 
     result = runner.invoke(
         cli, ["env", "init", "docker-compose", "test-rename-1"]
@@ -211,29 +219,18 @@ def test_env_rename(temp_home: Path, runner: CliRunner, mocker: MockerFixture):
     ), f"Old directory {old_dir} still exists after rename."
 
 
+@pytest.mark.env
+@pytest.mark.parametrize("expanduser_side_effects", [7])
 def test_env_checkout(
-    temp_home: Path, runner: CliRunner, mocker: MockerFixture
+    temp_home: Path,
+    runner: CliRunner,
+    mocker: MockerFixture,
+    expanduser_side_effects: int,
 ):
-
-    mocker.patch(
-        "os.path.expanduser",
-        side_effect=[
-            temp_home / ".shpd.conf",
-            temp_home / "shpd",
-            temp_home / ".shpd.conf",
-            temp_home / "shpd",
-            temp_home / ".shpd.conf",
-            temp_home / "shpd",
-            temp_home / ".shpd.conf",
-            temp_home / "shpd",
-            temp_home / ".shpd.conf",
-            temp_home / "shpd",
-            temp_home / ".shpd.conf",
-            temp_home / "shpd",
-            temp_home / ".shpd.conf",
-            temp_home / "shpd",
-        ],
+    side_effect = make_expanduser_side_effect(
+        temp_home, expanduser_side_effects
     )
+    mocker.patch("os.path.expanduser", side_effect=side_effect)
 
     result = runner.invoke(cli, ["env", "init", "docker-compose", "test-1"])
     assert result.exit_code == 0
@@ -262,29 +259,18 @@ def test_env_checkout(
     assert env.tag == "test-2"
 
 
+@pytest.mark.env
+@pytest.mark.parametrize("expanduser_side_effects", [7])
 def test_env_setnoactive(
-    temp_home: Path, runner: CliRunner, mocker: MockerFixture
+    temp_home: Path,
+    runner: CliRunner,
+    mocker: MockerFixture,
+    expanduser_side_effects: int,
 ):
-
-    mocker.patch(
-        "os.path.expanduser",
-        side_effect=[
-            temp_home / ".shpd.conf",
-            temp_home / "shpd",
-            temp_home / ".shpd.conf",
-            temp_home / "shpd",
-            temp_home / ".shpd.conf",
-            temp_home / "shpd",
-            temp_home / ".shpd.conf",
-            temp_home / "shpd",
-            temp_home / ".shpd.conf",
-            temp_home / "shpd",
-            temp_home / ".shpd.conf",
-            temp_home / "shpd",
-            temp_home / ".shpd.conf",
-            temp_home / "shpd",
-        ],
+    side_effect = make_expanduser_side_effect(
+        temp_home, expanduser_side_effects
     )
+    mocker.patch("os.path.expanduser", side_effect=side_effect)
 
     result = runner.invoke(cli, ["env", "init", "docker-compose", "test-1"])
     assert result.exit_code == 0
@@ -312,17 +298,18 @@ def test_env_setnoactive(
     assert env is None
 
 
-def test_env_list(temp_home: Path, runner: CliRunner, mocker: MockerFixture):
-
-    mocker.patch(
-        "os.path.expanduser",
-        side_effect=[
-            temp_home / ".shpd.conf",
-            temp_home / "shpd",
-            temp_home / ".shpd.conf",
-            temp_home / "shpd",
-        ],
+@pytest.mark.env
+@pytest.mark.parametrize("expanduser_side_effects", [2])
+def test_env_list(
+    temp_home: Path,
+    runner: CliRunner,
+    mocker: MockerFixture,
+    expanduser_side_effects: int,
+):
+    side_effect = make_expanduser_side_effect(
+        temp_home, expanduser_side_effects
     )
+    mocker.patch("os.path.expanduser", side_effect=side_effect)
 
     result = runner.invoke(cli, ["env", "init", "docker-compose", "test-1"])
     assert result.exit_code == 0
@@ -331,23 +318,19 @@ def test_env_list(temp_home: Path, runner: CliRunner, mocker: MockerFixture):
     assert result.exit_code == 0
 
 
+@pytest.mark.env
+@pytest.mark.parametrize("expanduser_side_effects", [3])
 def test_env_delete_yes(
-    temp_home: Path, runner: CliRunner, mocker: MockerFixture
+    temp_home: Path,
+    runner: CliRunner,
+    mocker: MockerFixture,
+    expanduser_side_effects: int,
 ):
-
-    mocker.patch("builtins.input", return_value="y")
-
-    mocker.patch(
-        "os.path.expanduser",
-        side_effect=[
-            temp_home / ".shpd.conf",
-            temp_home / "shpd",
-            temp_home / ".shpd.conf",
-            temp_home / "shpd",
-            temp_home / ".shpd.conf",
-            temp_home / "shpd",
-        ],
+    side_effect = make_expanduser_side_effect(
+        temp_home, expanduser_side_effects
     )
+    mocker.patch("os.path.expanduser", side_effect=side_effect)
+    mocker.patch("builtins.input", return_value="y")
 
     result = runner.invoke(cli, ["env", "init", "docker-compose", "test-1"])
     assert result.exit_code == 0
@@ -366,23 +349,19 @@ def test_env_delete_yes(
     ), f"directory {env_dir} still exists after delete."
 
 
+@pytest.mark.env
+@pytest.mark.parametrize("expanduser_side_effects", [3])
 def test_env_delete_no(
-    temp_home: Path, runner: CliRunner, mocker: MockerFixture
+    temp_home: Path,
+    runner: CliRunner,
+    mocker: MockerFixture,
+    expanduser_side_effects: int,
 ):
-
-    mocker.patch("builtins.input", return_value="n")
-
-    mocker.patch(
-        "os.path.expanduser",
-        side_effect=[
-            temp_home / ".shpd.conf",
-            temp_home / "shpd",
-            temp_home / ".shpd.conf",
-            temp_home / "shpd",
-            temp_home / ".shpd.conf",
-            temp_home / "shpd",
-        ],
+    side_effect = make_expanduser_side_effect(
+        temp_home, expanduser_side_effects
     )
+    mocker.patch("os.path.expanduser", side_effect=side_effect)
+    mocker.patch("builtins.input", return_value="n")
 
     result = runner.invoke(cli, ["env", "init", "docker-compose", "test-1"])
     assert result.exit_code == 0
@@ -399,3 +378,28 @@ def test_env_delete_no(
     assert os.path.exists(
         env_dir
     ), f"directory {env_dir} does not exist after delete-no."
+
+
+@pytest.mark.env
+@pytest.mark.parametrize("expanduser_side_effects", [3])
+def test_env_add_nonexisting_resource(
+    temp_home: Path,
+    runner: CliRunner,
+    mocker: MockerFixture,
+    expanduser_side_effects: int,
+):
+    side_effect = make_expanduser_side_effect(
+        temp_home, expanduser_side_effects
+    )
+    mocker.patch("os.path.expanduser", side_effect=side_effect)
+
+    result = runner.invoke(
+        cli, ["env", "init", "docker-compose", "test-svc-add"]
+    )
+    assert result.exit_code == 0
+
+    result = runner.invoke(cli, ["env", "checkout", "test-svc-add"])
+    assert result.exit_code == 0
+
+    result = runner.invoke(cli, ["env", "add-resource", "foo", "foo-1"])
+    assert result.exit_code == 2

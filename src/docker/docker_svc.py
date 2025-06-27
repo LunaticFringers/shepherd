@@ -20,43 +20,58 @@ from __future__ import annotations
 
 from typing import override
 
-from config import ConfigMng, EnvironmentCfg
-from environment import Environment
+from config import ConfigMng, ServiceCfg
+from service import Service
 
 
-class DockerComposeEnv(Environment):
+class DockerSvc(Service):
 
-    def __init__(self, config: ConfigMng, envCfg: EnvironmentCfg):
-        """Initialize a Docker Compose environment."""
-        super().__init__(config, envCfg)
+    def __init__(self, config: ConfigMng, svcCfg: ServiceCfg):
+        """Initialize a Docker service."""
+        super().__init__(config, svcCfg)
 
     @override
-    def clone(self, dst_env_tag: str) -> DockerComposeEnv:
-        """Clone an environment."""
-        clonedCfg = EnvironmentCfg.from_other(self.to_config())
-        clonedCfg.tag = dst_env_tag
-        clonedEnv = DockerComposeEnv(
+    def clone(self, dst_svc_tag: str) -> DockerSvc:
+        """Clone a service."""
+        clonedCfg = ServiceCfg.from_other(self.to_config())
+        clonedCfg.tag = dst_svc_tag
+        clonedSvc = DockerSvc(
             self.configMng,
             clonedCfg,
         )
-        return clonedEnv
+        return clonedSvc
+
+    @override
+    def build(self):
+        """Build the service."""
+        pass
+
+    @override
+    def bootstrap(self):
+        """Bootstrap the service."""
+        pass
 
     @override
     def start(self):
-        """Start an environment."""
+        """Start the service."""
         pass
 
     @override
     def halt(self):
-        """Halt an environment."""
+        """Stop the service."""
         pass
 
     @override
     def reload(self):
-        """Reload an environment."""
+        """Reload the service."""
         pass
 
     @override
-    def status(self):
-        """Get environment status."""
+    def show_stdout(self):
+        """Show the service stdout."""
+        pass
+
+    @override
+    def get_shell(self):
+        """Get a shell session for the service."""
         pass

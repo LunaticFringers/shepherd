@@ -16,14 +16,15 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-from typing import Dict
+from typing import Dict, Optional
 
 import click
 
+from completion import CompletionMng
 from config import ConfigMng
 from database import DatabaseMng
 from environment import EnvironmentMng
-from factory import ShpdEnvironmentFactory
+from factory import ShpdEnvironmentFactory, ShpdServiceFactory
 from service import ServiceMng
 from util import Util
 
@@ -35,10 +36,13 @@ class ShepherdMng:
         Util.ensure_dirs(self.configMng.constants)
         Util.ensure_config_file(self.configMng.constants)
         self.configMng.load()
+        self.completionMng = CompletionMng(self.cli_flags, self.configMng)
+        self.svcFactory = ShpdServiceFactory(self.configMng)
+        self.envFactory = ShpdEnvironmentFactory(
+            self.configMng, self.svcFactory
+        )
         self.environmentMng = EnvironmentMng(
-            self.cli_flags,
-            self.configMng,
-            ShpdEnvironmentFactory(self.configMng),
+            self.cli_flags, self.configMng, self.envFactory, self.svcFactory
         )
         self.serviceMng = ServiceMng(self.cli_flags, self.configMng)
         self.databaseMng = DatabaseMng(self.cli_flags, self.configMng)
@@ -103,6 +107,19 @@ def empty():
     pass
 
 
+@cli.command(name="__complete", hidden=True)
+@click.argument("args", nargs=-1)
+@click.pass_obj
+def complete(shepherd: ShepherdMng, args: list[str]):
+    """
+    Internal shell completion entrypoint.
+    Usage: shepctl __complete <args...>
+    """
+    completions = shepherd.completionMng.get_completions(args)
+    for c in completions:
+        click.echo(c)
+
+
 @cli.group()
 def db():
     """Database related operations."""
@@ -123,9 +140,9 @@ def db_bootstrap(shepherd: ShepherdMng):
     shepherd.databaseMng.bootstrap_svc("")
 
 
-@db.command(name="start")
+@db.command(name="up")
 @click.pass_obj
-def db_start(shepherd: ShepherdMng):
+def db_up(shepherd: ShepherdMng):
     """Start database service."""
     shepherd.databaseMng.start_svc("")
 
@@ -223,9 +240,9 @@ def env_list(shepherd: ShepherdMng):
     shepherd.environmentMng.list_envs()
 
 
-@env.command(name="start")
+@env.command(name="up")
 @click.pass_obj
-def env_start(shepherd: ShepherdMng):
+def env_up(shepherd: ShepherdMng):
     """Start environment."""
     shepherd.environmentMng.start_env()
 
@@ -251,6 +268,31 @@ def env_status(shepherd: ShepherdMng):
     shepherd.environmentMng.status_env()
 
 
+@env.command(name="add-resource")
+@click.argument("resource_type", required=True)
+@click.argument("resource_name", required=True)
+@click.argument("resource_template", required=False)
+@click.pass_obj
+def env_add_resource(
+    shepherd: ShepherdMng,
+    resource_type: str,
+    resource_name: str,
+    resource_template: Optional[str] = None,
+):
+    """Add a resource to the current environment.
+
+    RESOURCE_TYPE: The type of resource to add (e.g., svc).
+    RESOURCE_NAME: The name of the resource (e.g., svc-name).
+    RESOURCE_TEMPLATE: Optional template for the resource.
+    """
+    if resource_type == "svc":
+        shepherd.environmentMng.add_service(
+            None, resource_name, resource_template
+        )
+    else:
+        raise click.UsageError(f"Unsupported resource type: {resource_type}")
+
+
 @cli.group()
 def svc():
     """Service related operations."""
@@ -273,10 +315,10 @@ def srv_bootstrap(shepherd: ShepherdMng, service_type: str):
     shepherd.serviceMng.bootstrap_svc(service_type)
 
 
-@svc.command(name="start")
+@svc.command(name="up")
 @click.argument("service_type", type=str, required=True)
 @click.pass_obj
-def srv_start(shepherd: ShepherdMng, service_type: str):
+def srv_up(shepherd: ShepherdMng, service_type: str):
     """Start service."""
     shepherd.serviceMng.start_svc(service_type)
 

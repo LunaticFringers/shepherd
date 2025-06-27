@@ -17,5 +17,6 @@
 
 
 from .docker_compose_env import DockerComposeEnv
+from .docker_svc import DockerSvc
 
-__all__ = ["DockerComposeEnv"]
+__all__ = ["DockerComposeEnv", "DockerSvc"]

@@ -24,7 +24,7 @@ from service import Service, ServiceMng
 
 class DatabaseService(Service):
     @override
-    def build_image(self):
+    def build(self):
         """Build the DBMS image."""
         pass
 

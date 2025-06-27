@@ -64,3 +64,7 @@ class Constants:
     # Environment types
 
     ENV_TYPE_DOCKER_COMPOSE: str = "docker-compose"
+
+    # Service types
+
+    SVC_TYPE_DOCKER: str = "docker"

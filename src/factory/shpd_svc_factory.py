@@ -18,37 +18,40 @@
 
 from typing import override
 
-from config import ConfigMng, EnvironmentCfg
-from docker_compose import DockerComposeEnv
-from environment import Environment, EnvironmentFactory
+from config import ConfigMng, ServiceCfg
+from docker import DockerSvc
+from service import Service, ServiceFactory
 from util import Constants
 
 
-class ShpdEnvironmentFactory(EnvironmentFactory):
+class ShpdServiceFactory(ServiceFactory):
 
     def __init__(self, configMng: ConfigMng):
         self.configMng = configMng
 
     @override
-    def new_environment(self, env_type: str, env_tag: str) -> Environment:
+    def new_service(self, svc_type: str, svc_tag: str) -> Service:
         """
-        Create an environment.
+        Create a service.
         """
-        match env_type:
-            case Constants.ENV_TYPE_DOCKER_COMPOSE:
-                return DockerComposeEnv(
-                    self.configMng, EnvironmentCfg.from_tag(env_type, env_tag)
+        match svc_type:
+            case Constants.SVC_TYPE_DOCKER:
+                return DockerSvc(
+                    self.configMng, ServiceCfg.from_tag(svc_type, svc_tag)
                 )
             case _:
-                raise ValueError(f"Unknown environment type: {env_type}")
+                raise ValueError(f"Unknown service type: {svc_type}")
 
     @override
-    def get_environment(self, envCfg: EnvironmentCfg) -> Environment:
+    def new_service_cfg(self, svcCfg: ServiceCfg) -> Service:
         """
-        Get an environment.
+        Get a service.
         """
-        match envCfg.type:
-            case Constants.ENV_TYPE_DOCKER_COMPOSE:
-                return DockerComposeEnv(self.configMng, envCfg)
+        match svcCfg.type:
+            case Constants.SVC_TYPE_DOCKER:
+                return DockerSvc(self.configMng, svcCfg)
             case _:
-                raise ValueError(f"Unknown environment type: {envCfg.type}")
+                raise ValueError(
+                    f"""Unknown service type: {svcCfg.type},
+                    plugins not supported yet!"""
+                )

@@ -15,39 +15,46 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+from __future__ import annotations
+
 from abc import ABC, abstractmethod
-from typing import Dict
+from typing import Dict, Optional
 
 from config import ConfigMng, ServiceCfg
 
 
 class Service(ABC):
 
-    def __init__(
-        self,
-        type: str,
-        tag: str,
-        image: str,
-        ingress: bool = False,
-        empty_env: str = "",
-        envvars: dict[str, str] = {},
-        ports: dict[str, str] = {},
-        properties: dict[str, str] = {},
-        subject_alternative_name: str = "",
-    ):
-        self.type = type
-        self.tag = tag
-        self.image = image
-        self.ingress = ingress
-        self.empty_env = empty_env
-        self.envvars = envvars or {}
-        self.ports = ports or {}
-        self.properties = properties or {}
-        self.subject_alternative_name = subject_alternative_name
+    type: str
+    tag: str
+    image: str
+    ingress: bool
+    empty_env: str
+    envvars: Dict[str, str]
+    ports: Dict[str, str]
+    properties: Dict[str, str]
+    subject_alternative_name: Optional[str]
+
+    def __init__(self, configMng: ConfigMng, svcCfg: ServiceCfg):
+        self.configMng = configMng
+        self.type = svcCfg.type
+        self.tag = svcCfg.tag
+        self.image = svcCfg.image
+        self.ingress = svcCfg.ingress if svcCfg.ingress else False
+        self.empty_env = svcCfg.empty_env if svcCfg.empty_env else ""
+        self.envvars = svcCfg.envvars if svcCfg.envvars else {}
+        self.ports = svcCfg.ports if svcCfg.ports else {}
+        self.properties = svcCfg.properties if svcCfg.properties else {}
+        self.subject_alternative_name = svcCfg.subject_alternative_name
 
     @abstractmethod
-    def build_image(self):
-        """Build the service image."""
+    def clone(self, dst_svc_tag: str) -> Service:
+        """Clone a service."""
+        pass
+
+    @abstractmethod
+    def build(self):
+        """Build the service."""
         pass
 
     @abstractmethod
@@ -92,6 +99,29 @@ class Service(ABC):
             properties=self.properties,
             subject_alternative_name=self.subject_alternative_name,
         )
+
+
+class ServiceFactory(ABC):
+    """
+    Factory class for services.
+    """
+
+    def __init__(self, config: ConfigMng):
+        self.config = config
+
+    @abstractmethod
+    def new_service(self, svc_type: str, svc_tag: str) -> Service:
+        """
+        Create a new service.
+        """
+        pass
+
+    @abstractmethod
+    def new_service_cfg(self, svcCfg: ServiceCfg) -> Service:
+        """
+        Create a new service.
+        """
+        pass
 
 
 class ServiceMng:

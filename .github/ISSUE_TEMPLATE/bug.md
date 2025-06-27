@@ -32,7 +32,7 @@ Add screenshots if helpful.
 ## Environment
 
 - **Shepherd Version:** <!-- e.g., 0.1.0 -->
-- **Database Type:** <!-- e.g., PostgreSQL, Oracle -->
+- **Database Type:** <!-- e.g., PostgreSQL -->
 - **OS:** <!-- e.g., Ubuntu 22.04 -->
 
 ## Additional Context

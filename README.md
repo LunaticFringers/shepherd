@@ -84,13 +84,6 @@ to [Authoring Environment Images].
 Refer to the specific documentation for the currently supported commands
 and options of [shepctl].
 
-## Database Service's Documentation
-
-Refer to the specific documentation for currently supported database services:
-
-1. [Oracle]
-2. Postgres
-
 ## Develop Shepherd
 
 See our [development][development] documentation.
@@ -99,5 +92,4 @@ See our [development][development] documentation.
 [Consuming Environment Images]: docs/env-consume.md
 [Authoring Environment Images]: docs/env-auth.md
 [shepctl]: docs/shepctl.md
-[Oracle]: docs/ORACLE.md
 [development]: docs/development.md
