@@ -403,11 +403,9 @@ def test_cli_srv_bootstrap(
 
 
 @pytest.mark.shpd
-def test_cli_srv_start(
-    temp_home: Path, runner: CliRunner, mocker: MockerFixture
-):
+def test_cli_srv_up(temp_home: Path, runner: CliRunner, mocker: MockerFixture):
     mock_start = mocker.patch.object(ServiceMng, "start_svc")
-    result = runner.invoke(cli, ["svc", "start", "service_type"])
+    result = runner.invoke(cli, ["svc", "up", "service_type"])
     assert result.exit_code == 0
     mock_start.assert_called_once_with("service_type")
 
@@ -456,11 +454,9 @@ def test_cli_srv_shell(
 
 
 @pytest.mark.shpd
-def test_cli_db_start(
-    temp_home: Path, runner: CliRunner, mocker: MockerFixture
-):
+def test_cli_db_up(temp_home: Path, runner: CliRunner, mocker: MockerFixture):
     mock_start = mocker.patch.object(DatabaseMng, "start_svc")
-    result = runner.invoke(cli, ["db", "start"])
+    result = runner.invoke(cli, ["db", "up"])
     assert result.exit_code == 0
     mock_start.assert_called_once()
 
@@ -579,11 +575,9 @@ def test_cli_env_list(
 
 
 @pytest.mark.shpd
-def test_cli_env_start(
-    temp_home: Path, runner: CliRunner, mocker: MockerFixture
-):
+def test_cli_env_up(temp_home: Path, runner: CliRunner, mocker: MockerFixture):
     mock_start = mocker.patch.object(EnvironmentMng, "start_env")
-    result = runner.invoke(cli, ["env", "start"])
+    result = runner.invoke(cli, ["env", "up"])
     assert result.exit_code == 0
     mock_start.assert_called_once()
 
