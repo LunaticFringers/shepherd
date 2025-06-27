@@ -61,7 +61,25 @@ sudo apt install python3 python3-pip python3-venv -y
 
    You should see the list of available commands and options.
 
-5. **Run the CLI**
+5. **Run the Automatic Installer**
+
+   Run the python implemented automatic installer using  the
+   install script from the root folder.
+
+   ```bash
+   ./install.sh
+   ```
+
+   Options are shown running the script without any argument.
+
+   In alternative the script can be run manually from the src/
+   directory using:
+
+   ```bash
+   python3 -m installer.install
+   ```
+
+6. **Run the CLI**
 
    You can now use the CLI:
 
