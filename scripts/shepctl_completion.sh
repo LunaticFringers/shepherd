@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Copyright (c) 2025 Lunatic Fringers
+# Copyright (c) 2025 Moony Fringers
 #
 # This file is part of Shepherd Core Stack
 #

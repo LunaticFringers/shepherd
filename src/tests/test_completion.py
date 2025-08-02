@@ -1,4 +1,4 @@
-# Copyright (c) 2025 Lunatic Fringers
+# Copyright (c) 2025 Moony Fringers
 #
 # This file is part of Shepherd Core Stack
 #
@@ -27,7 +27,7 @@ from shepctl import ShepherdMng
 
 values = """
   # PostgreSQL (pg) Configuration
-  pg_image=ghcr.io/lunaticfringers/shepherd/postgres:17-3.5
+  pg_image=ghcr.io/MoonyFringers/shepherd/postgres:17-3.5
   pg_empty_env=fresh-pg-1735
   pg_listener_port=5432
 
@@ -47,7 +47,7 @@ values = """
   ca_country=IT
   ca_state=MS
   ca_locality=Carrara
-  ca_org=LunaticFringe
+  ca_org=MoonyFringe
   ca_org_unit=Development
   ca_cn=sslip.io
   ca_email=lf@sslip.io
@@ -57,7 +57,7 @@ values = """
   cert_country=IT
   cert_state=MS
   cert_locality=Carrara
-  cert_org=LunaticFringe
+  cert_org=MoonyFringe
   cert_org_unit=Development
   cert_cn=sslip.io
   cert_email=lf@sslip.io

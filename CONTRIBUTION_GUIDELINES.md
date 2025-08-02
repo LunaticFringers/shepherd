@@ -10,13 +10,13 @@ To ensure a smooth collaboration, please read and follow the guidelines below.
 2. **Clone the repository**: Clone your fork to your local machine:
 
    ```bash
-   git clone git@github.com:LunaticFringers/shepherd.git
+   git clone git@github.com:MoonyFringers/shepherd.git
    ```
 
 3. **Set up upstream**: Add the original repository as an upstream remote:
 
    ```bash
-   git remote add upstream git@github.com:LunaticFringers/shepherd.git
+   git remote add upstream git@github.com:MoonyFringers/shepherd.git
    ```
 
 ## Before You Start

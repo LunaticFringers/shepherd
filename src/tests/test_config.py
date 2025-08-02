@@ -1,4 +1,4 @@
-# Copyright (c) 2025 Lunatic Fringers
+# Copyright (c) 2025 Moony Fringers
 #
 # This file is part of Shepherd Core Stack
 #
@@ -147,7 +147,7 @@ config_json = """{
           "factory": "docker",
           "tag": "pg-1",
           "service_class": null,
-          "image": "ghcr.io/lunaticfringers/shepherd/postgres:17-3.5",
+          "image": "ghcr.io/MoonyFringers/shepherd/postgres:17-3.5",
           "hostname": null,
           "container_name": null,
           "labels": [],
@@ -284,7 +284,7 @@ config_json = """{
 
 values = """
   # Oracle (ora) Configuration
-  ora_image=ghcr.io/lunaticfringers/shepherd/oracle:19.3.0.0_TZ40
+  ora_image=ghcr.io/MoonyFringers/shepherd/oracle:19.3.0.0_TZ40
   ora_empty_env=fresh-ora-19300
   ora_pump_dir=PUMP_DIR
   ora_root_db_name=ORCLCDB
@@ -292,7 +292,7 @@ values = """
   ora_listener_port=1521
 
   # PostgreSQL (pg) Configuration
-  pg_image=ghcr.io/lunaticfringers/shepherd/postgres:17-3.5
+  pg_image=ghcr.io/MoonyFringers/shepherd/postgres:17-3.5
   pg_empty_env=fresh-pg-1735
   pg_listener_port=5432
 
@@ -312,7 +312,7 @@ values = """
   ca_country=IT
   ca_state=MS
   ca_locality=Carrara
-  ca_org=LunaticFringe
+  ca_org=MoonyFringe
   ca_org_unit=Development
   ca_cn=sslip.io
   ca_email=lf@sslip.io
@@ -322,7 +322,7 @@ values = """
   cert_country=IT
   cert_state=MS
   cert_locality=Carrara
-  cert_org=LunaticFringe
+  cert_org=MoonyFringe
   cert_org_unit=Development
   cert_cn=sslip.io
   cert_email=lf@sslip.io
@@ -380,7 +380,7 @@ def test_load_config(mocker: MockerFixture):
     assert service_templates and service_templates[0].tag == "oracle"
     assert service_templates[0].factory == "docker"
     assert service_templates[0].image == (
-        "ghcr.io/lunaticfringers/shepherd/oracle:19.3.0.0_TZ40"
+        "ghcr.io/MoonyFringers/shepherd/oracle:19.3.0.0_TZ40"
     )
     assert service_templates[0].empty_env == "fresh-ora-19300"
     assert service_templates[0].ingress is False
@@ -403,7 +403,7 @@ def test_load_config(mocker: MockerFixture):
     assert service_templates[1].tag == "postgres"
     assert service_templates[1].factory == "docker"
     assert service_templates[1].image == (
-        "ghcr.io/lunaticfringers/shepherd/postgres:17-3.5"
+        "ghcr.io/MoonyFringers/shepherd/postgres:17-3.5"
     )
     assert service_templates[1].empty_env == "fresh-pg-1735"
     assert service_templates[1].ingress is False
@@ -430,7 +430,7 @@ def test_load_config(mocker: MockerFixture):
     assert services[0].factory == "docker"
     assert services[0].tag == "pg-1"
     assert services[0].image == (
-        "ghcr.io/lunaticfringers/shepherd/postgres:17-3.5"
+        "ghcr.io/MoonyFringers/shepherd/postgres:17-3.5"
     )
     properties = services[0].properties
     assert properties and properties["sys_user"] == "syspg1"
@@ -480,7 +480,7 @@ def test_load_config(mocker: MockerFixture):
     assert config.ca.country == "IT"
     assert config.ca.state == "MS"
     assert config.ca.locality == "Carrara"
-    assert config.ca.organization == "LunaticFringe"
+    assert config.ca.organization == "MoonyFringe"
     assert config.ca.organizational_unit == "Development"
     assert config.ca.common_name == "sslip.io"
     assert config.ca.email == "lf@sslip.io"
@@ -488,7 +488,7 @@ def test_load_config(mocker: MockerFixture):
     assert config.cert.country == "IT"
     assert config.cert.state == "MS"
     assert config.cert.locality == "Carrara"
-    assert config.cert.organization == "LunaticFringe"
+    assert config.cert.organization == "MoonyFringe"
     assert config.cert.organizational_unit == "Development"
     assert config.cert.common_name == "sslip.io"
     assert config.cert.email == "lf@sslip.io"

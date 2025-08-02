@@ -104,4 +104,4 @@ Links:
 - [AGPL License](https://www.gnu.org/licenses/agpl-3.0.html)
 - [Comparison of Open Source Licenses](https://choosealicense.com/)
 
-[shepherd-core-stack]: (https://github.com/LunaticFringers/shepherd)
+[shepherd-core-stack]: (https://github.com/MoonyFringers/shepherd)

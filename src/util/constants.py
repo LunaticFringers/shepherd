@@ -1,4 +1,4 @@
-# Copyright (c) 2025 Lunatic Fringers
+# Copyright (c) 2025 Moony Fringers
 #
 # This file is part of Shepherd Core Stack
 #
@@ -58,9 +58,9 @@ class Constants:
 
     APP_NAME: str = "shepctl"
     APP_VERSION: str = "0.0.0"
-    APP_AUTHOR: str = "Lunatic Fringers"
+    APP_AUTHOR: str = "Moony Fringers"
     APP_LICENSE: str = "MIT"
-    APP_URL: str = "https://github.com/LunaticFringers/shepherd"
+    APP_URL: str = "https://github.com/MoonyFringers/shepherd"
 
     # Environment templates:
 
@@ -258,12 +258,12 @@ ARCH_MAPPING: dict[tuple[str, str], str] = {
 
 # URL template for downloading shepctl source tarballs
 SHEPCTL_SOURCE_URL: str = (
-    "https://github.com/LunaticFringers/shepherd/archive/refs/tags/v"
+    "https://github.com/MoonyFringers/shepherd/archive/refs/tags/v"
     "{version}.tar.gz"
 )
 
 # URL template for downloading shepctl source tarballs
 SHEPCTL_BINARY_URL: str = (
-    "https://github.com/LunaticFringers/shepherd/releases/download/"
+    "https://github.com/MoonyFringers/shepherd/releases/download/"
     "v{version}/shepctl-{version}.tar.gz"
 )

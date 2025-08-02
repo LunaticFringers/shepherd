@@ -17,11 +17,11 @@ Where should the records live?
 
 ### Location
 
-- <https://github.com/LunaticFringers/shepherd>
+- <https://github.com/MoonyFringers/shepherd>
 
 ## Decision Outcome
 
-MADR in LunaticFringers/shepherd, because
+MADR in MoonyFringers/shepherd, because
 
 - Motivations, architecture, design and code decisions should be open and public.
 - Github merge request workflow adds an easy review workflow we
