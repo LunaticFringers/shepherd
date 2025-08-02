@@ -23,7 +23,7 @@ sudo apt install python3 python3-pip python3-venv -y
 1. **Clone the Repository**
 
    ```bash
-   git clone git@github.com:LunaticFringers/shepherd.git
+   git clone git@github.com:MoonyFringers/shepherd.git
    cd shepherd
    ```
 

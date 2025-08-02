@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Copyright (c) 2025 Lunatic Fringers
+# Copyright (c) 2025 Moony Fringers
 #
 # This file is part of Shepherd Core Stack
 #
@@ -29,7 +29,7 @@ CURRENT_DIR="$(realpath "$(dirname "$0")")"
 
 INSTALL_SHEPCTL_DIR=$(realpath ${INSTALL_SHEPCTL_DIR:-"/opt/shepctl"})
 SYMLINK_DIR=${SYMLINK_DIR:-"/usr/local/bin"}
-URL="https://github.com/LunaticFringers/shepherd/releases/download/v$VER/shepctl-$VER.tar.gz"
+URL="https://github.com/MoonyFringers/shepherd/releases/download/v$VER/shepctl-$VER.tar.gz"
 
 set -e
 

@@ -6,7 +6,7 @@ This directory contains decision records for **shepherd**.
 
 - Copy `adr-template.md` to `NNNN-title-with-dashes.md`
 - Edit `NNNN-title-with-dashes.md`
-- Open pull requests to `LunaticFringers/shepherd`
+- Open pull requests to `MoonyFringers/shepherd`
 
 ## Resources
 

@@ -1,4 +1,4 @@
-# Copyright (c) 2025 Lunatic Fringers
+# Copyright (c) 2025 Moony Fringers
 #
 # This file is part of Shepherd Core Stack
 #
@@ -406,7 +406,7 @@ class TestInstallScript:
                 install.install_binary()
 
                 expected_url = (
-                    "https://github.com/LunaticFringers/shepherd/"
+                    "https://github.com/MoonyFringers/shepherd/"
                     "releases/download/v1.0.0/shepctl-1.0.0.tar.gz"
                 )
 
