@@ -3,8 +3,8 @@
 [![license](https://img.shields.io/badge/license-AGPL%20V3-blue)](https://github.com/LunaticFringers/shepherd/blob/master/LICENSE)
 [![codecov](https://codecov.io/gh/LunaticFringers/shepherd/branch/main/graph/badge.svg)](https://codecov.io/gh/LunaticFringers/shepherd)
 
-Shepherd implements an orchestrator tool useful for provisioning development
-platforms.
+Shepherd functions as a specialized orchestration tool designed to streamline
+the provisioning of development platforms.
 
 > **Note:** Should a bug be found and not expected to be related with
 > [known issues][issues], one should feel encouraged to file a new issue.
@@ -47,24 +47,16 @@ the corresponding environment state will evolve privately.
 - **Linux**
   - Debian derived
 
-- **Windows**
-  - Windows 10+
-
 ## Installation
 
-### Linux
+Set the `VER` environment variable to specify the desired version of the tool:
 
-Use the `VER` env variable to specify the desired tool's version.
-
-```text
+```bash
 sudo VER=0.0.0 sh -c "$(curl -sfL https://raw.githubusercontent.com/LunaticFringers/shepherd/main/scripts/install.sh)"
 ```
 
-For development, you can also install the tool directly from [sources](docs/development.md#install-from-source).
-
-### Windows
-
-Not supported yet.
+For advanced installation options and customization, refer to the
+[installation guide][install].
 
 ## Consuming Environment Images
 
@@ -93,3 +85,4 @@ See our [development][development] documentation.
 [Authoring Environment Images]: docs/env-auth.md
 [shepctl]: docs/shepctl.md
 [development]: docs/development.md
+[install]: docs/install.md
